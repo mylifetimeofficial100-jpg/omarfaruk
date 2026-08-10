@@ -1021,7 +1021,7 @@ let lastSyncError = null;
 let S = {
   pw: DEFAULT_PW,
   profile: {
-    name: "Omar Faruk", bio: "", avatar: "", cover: "", email: "", phone: "", goals: "",
+    name: "Omar Faruk", bio: "", avatar: "profile.jpg", cover: "", email: "", phone: "", goals: "",
     college: "", subject: "", location: "", website: "", birthday: "", blood: "",
     address: "", skills: "", linkedin: "", github: "", facebook: "", whatsapp: "",
     title: "", company: ""
@@ -1116,6 +1116,60 @@ function readAsDataURL(file, maxBytes) {
   });
 }
 
+/** Compress / resize image for localStorage (avatar/cover) */
+function compressImage(file, maxSide, quality) {
+  maxSide = maxSide || 512;
+  quality = quality || 0.82;
+  return new Promise((resolve, reject) => {
+    if (!file || !file.type || !file.type.startsWith("image/")) {
+      return reject(new Error("শুধু ছবি ফাইল"));
+    }
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      try {
+        let w = img.naturalWidth || img.width;
+        let h = img.naturalHeight || img.height;
+        if (!w || !h) { URL.revokeObjectURL(url); return reject(new Error("ছবি পড়া যায়নি")); }
+        const scale = Math.min(1, maxSide / Math.max(w, h));
+        w = Math.max(1, Math.round(w * scale));
+        h = Math.max(1, Math.round(h * scale));
+        const canvas = document.createElement("canvas");
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(url);
+        let data = canvas.toDataURL("image/jpeg", quality);
+        // if still huge, lower quality
+        if (data.length > 450000) data = canvas.toDataURL("image/jpeg", 0.65);
+        if (data.length > 700000) data = canvas.toDataURL("image/jpeg", 0.5);
+        resolve(data);
+      } catch (e) {
+        URL.revokeObjectURL(url);
+        reject(e);
+      }
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("ছবি লোড ব্যর্থ")); };
+    img.src = url;
+  });
+}
+
+function previewProfilePhoto(kind) {
+  const input = document.getElementById(kind === "cover" ? "pCoverFile" : "pPhoto");
+  if (!input || !input.files || !input.files[0]) return;
+  const f = input.files[0];
+  if (!f.type.startsWith("image/")) return toast("শুধু ছবি সিলেক্ট করুন", "err");
+  const url = URL.createObjectURL(f);
+  if (kind === "cover") {
+    const box = document.querySelector(".prof-cover");
+    if (box) box.innerHTML = `<img src="${url}" alt="">`;
+  } else {
+    const av = document.getElementById("pfAv");
+    if (av) av.innerHTML = `<img src="${url}" alt="">`;
+  }
+  toast("ছবি সিলেক্ট হয়েছে — নিচে «প্রোফাইল সেভ করুন» চাপুন", "info");
+}
+
 /* ---------- Persistence ---------- */
 function loadLocal() {
   try {
@@ -1163,7 +1217,14 @@ function save() {
   clearTimeout(saveT);
   saveT = setTimeout(async () => {
     S._updatedAt = Date.now();
-    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {}
+    try {
+      localStorage.setItem(KEY, JSON.stringify(S));
+    } catch (e) {
+      console.warn("localStorage save failed", e);
+      toast("স্টোরেজ পূর্ণ — ছবি ছোট করুন বা Google লগইন করুন", "err");
+      document.getElementById("saveDot").textContent = "সেভ ব্যর্থ";
+      return;
+    }
     if (useCloud && db && currentUser) {
       try {
         const { pw, ...cloudData } = S;
@@ -1304,6 +1365,7 @@ window.addEventListener("load", async () => {
   initFirebase();
   loadLocal();
   if (!S.profile.name) S.profile.name = "Omar Faruk";
+  if (!S.profile.avatar) S.profile.avatar = "profile.jpg";
   applyTheme(S.settings.theme || "light");
   applyDensity();
   updateNetBadge();
@@ -3303,7 +3365,7 @@ function rProfile(c) {
   const dc = dataCounts();
   const skills = (p.skills || "").split(",").map(s => s.trim()).filter(Boolean);
   const coverHtml = p.cover
-    ? `<img src="${esc(p.cover)}" alt="">`
+    ? `<img src="${String(p.cover).replace(/"/g,"")}" alt="">`
     : "";
   const links = [];
   if (p.website) links.push({ ico: "🌐", label: "ওয়েবসাইট", href: p.website });
@@ -3319,7 +3381,7 @@ function rProfile(c) {
       <div class="card" style="padding:20px 20px 24px;overflow:hidden">
         <div class="prof-cover">${coverHtml}</div>
         <div class="prof-hero">
-          <div class="prof-avatar" id="pfAv">${p.avatar?`<img src="${esc(p.avatar)}" alt="">`:(p.name||"O").charAt(0).toUpperCase()}</div>
+          <div class="prof-avatar" id="pfAv">${p.avatar?`<img src="${p.avatar.replace(/"/g,"")}" alt="">`:(p.name||"O").charAt(0).toUpperCase()}</div>
           <div style="flex:1;min-width:0;padding-bottom:4px">
             <div style="font-size:24px;font-weight:700;letter-spacing:-.3px">${esc(p.name||"ইউজার")}</div>
             ${p.title || p.company ? `<div style="font-size:14px;color:var(--text2);margin-top:2px">${esc(p.title||"")}${p.title&&p.company?" · ":""}${esc(p.company||"")}</div>` : ""}
@@ -3377,10 +3439,11 @@ function rProfile(c) {
 
         <div class="prof-section" style="border:none;padding-top:0;margin-top:0">
           <h4>ছবি</h4>
-          <div class="form-group"><label>প্রোফাইল ছবি আপলোড</label><input type="file" class="input" id="pPhoto" accept="image/*"></div>
-          <div class="form-group"><label>অথবা অ্যাভাটার URL</label><input class="input" id="pA" value="${esc(p.avatar||"")}" placeholder="https://..."></div>
-          <div class="form-group"><label>কভার ছবি URL</label><input class="input" id="pCover" value="${esc(p.cover||"")}" placeholder="https://..."></div>
-          <div class="form-group"><label>অথবা কভার আপলোড</label><input type="file" class="input" id="pCoverFile" accept="image/*"></div>
+          <div class="form-group"><label>প্রোফাইল ছবি আপলোড</label><input type="file" class="input" id="pPhoto" accept="image/*" onchange="previewProfilePhoto('avatar')"></div>
+          <div class="form-group"><label>অথবা অ্যাভাটার URL</label><input class="input" id="pA" value="${(p.avatar||'').startsWith('data:') ? '' : esc(p.avatar||'')}" placeholder="https://... (ঐচ্ছিক)"></div>
+          <div class="form-group"><label>কভার ছবি URL</label><input class="input" id="pCover" value="${(p.cover||'').startsWith('data:') ? '' : esc(p.cover||'')}" placeholder="https://... (ঐচ্ছিক)"></div>
+          <div class="form-group"><label>অথবা কভার আপলোড</label><input type="file" class="input" id="pCoverFile" accept="image/*" onchange="previewProfilePhoto('cover')"></div>
+          <p style="font-size:12px;color:var(--text3);margin:-4px 0 12px">ছবি সিলেক্টের পর অবশ্যই নিচের <b>প্রোফাইল সেভ করুন</b> বাটন চাপুন।</p>
         </div>
 
         <div class="prof-section">
@@ -3433,57 +3496,125 @@ function rProfile(c) {
   `;
 }
 async function saveProfile() {
-  let avatar = (document.getElementById("pA") || {}).value || "";
-  avatar = avatar.trim();
-  let cover = (document.getElementById("pCover") || {}).value || "";
-  cover = cover.trim();
-  const photoEl = document.getElementById("pPhoto");
-  if (photoEl && photoEl.files[0]) {
-    const f = photoEl.files[0];
-    document.getElementById("saveDot").textContent = "ছবি আপলোড...";
-    let url = await uploadToCloud(f, "avatar");
-    if (!url) {
-      try { url = await readAsDataURL(f, 1.5e6); } catch { toast("ছবি খুব বড় (১.৫MB এর কম) অথবা Google লগইন করুন", "err"); return; }
+  try {
+    const prev = S.profile || {};
+    let avatar = ((document.getElementById("pA") || {}).value || "").trim();
+    let cover = ((document.getElementById("pCover") || {}).value || "").trim();
+    // Keep existing image if user did not upload a new one / empty URL field
+    if (!avatar) avatar = prev.avatar || "";
+    if (!cover) cover = prev.cover || "";
+
+    const photoEl = document.getElementById("pPhoto");
+    if (photoEl && photoEl.files && photoEl.files[0]) {
+      const f = photoEl.files[0];
+      if (!f.type || !f.type.startsWith("image/")) {
+        toast("প্রোফাইলের জন্য JPG/PNG ছবি দিন", "err");
+        return;
+      }
+      document.getElementById("saveDot").textContent = "ছবি প্রসেস...";
+      let url = null;
+      try { url = await uploadToCloud(f, "avatar"); } catch (e) { url = null; }
+      if (!url) {
+        try { url = await compressImage(f, 400, 0.8); }
+        catch (e1) {
+          try { url = await readAsDataURL(f, 3e6); }
+          catch (e2) {
+            toast("ছবি প্রসেস ব্যর্থ — ছোট JPG ব্যবহার করুন", "err");
+            return;
+          }
+        }
+      }
+      avatar = url;
     }
-    avatar = url;
-  }
-  const coverEl = document.getElementById("pCoverFile");
-  if (coverEl && coverEl.files[0]) {
-    const f = coverEl.files[0];
-    document.getElementById("saveDot").textContent = "কভার আপলোড...";
-    let url = await uploadToCloud(f, "cover");
-    if (!url) {
-      try { url = await readAsDataURL(f, 1.8e6); } catch { toast("কভার ছবি বড় — Google লগইন করুন", "err"); return; }
+
+    const coverEl = document.getElementById("pCoverFile");
+    if (coverEl && coverEl.files && coverEl.files[0]) {
+      const f = coverEl.files[0];
+      if (!f.type || !f.type.startsWith("image/")) {
+        toast("কভারের জন্য JPG/PNG ছবি দিন", "err");
+        return;
+      }
+      document.getElementById("saveDot").textContent = "কভার প্রসেস...";
+      let url = null;
+      try { url = await uploadToCloud(f, "cover"); } catch (e) { url = null; }
+      if (!url) {
+        try { url = await compressImage(f, 1000, 0.75); }
+        catch (e1) {
+          try { url = await readAsDataURL(f, 3e6); }
+          catch (e2) {
+            toast("কভার প্রসেস ব্যর্থ", "err");
+            return;
+          }
+        }
+      }
+      cover = url;
     }
-    cover = url;
+
+    const g = id => {
+      const el = document.getElementById(id);
+      return el && el.value != null ? String(el.value) : "";
+    };
+
+    S.profile = {
+      name: g("pN").trim() || prev.name || "Omar Faruk",
+      title: g("pTitle"),
+      company: g("pCompany"),
+      bio: g("pB"),
+      location: g("pLoc"),
+      college: g("pC"),
+      subject: g("pS"),
+      birthday: g("pBday"),
+      blood: g("pBlood"),
+      address: g("pAddr"),
+      email: g("pE"),
+      phone: g("pP"),
+      whatsapp: g("pWa"),
+      website: g("pWeb"),
+      linkedin: g("pLi"),
+      github: g("pGh"),
+      facebook: g("pFb"),
+      skills: g("pSkills"),
+      goals: g("pG"),
+      avatar,
+      cover
+    };
+
+    // Immediate local save (not only debounced)
+    try {
+      S._updatedAt = Date.now();
+      localStorage.setItem(KEY, JSON.stringify(S));
+      document.getElementById("saveDot").textContent = "✓ লোকাল সেভ";
+    } catch (e) {
+      console.warn(e);
+      // If quota exceeded because of image, try saving without large data URLs once
+      if (avatar && String(avatar).startsWith("data:") && avatar.length > 100000) {
+        try {
+          const slim = await compressImage(
+            await (await fetch(avatar)).blob().then(b => new File([b], "a.jpg", { type: "image/jpeg" })),
+            256, 0.6
+          );
+          S.profile.avatar = slim;
+          localStorage.setItem(KEY, JSON.stringify(S));
+          document.getElementById("saveDot").textContent = "✓ লোকাল সেভ";
+        } catch (e2) {
+          toast("স্টোরেজ পূর্ণ — ছবি ছাড়া সেভ হচ্ছে না। ছোট ছবি দিন।", "err");
+          return;
+        }
+      } else {
+        toast("সেভ ব্যর্থ — স্টোরেজ পূর্ণ হতে পারে", "err");
+        return;
+      }
+    }
+
+    updateUser();
+    // also trigger normal save (cloud sync if available)
+    save();
+    toast("প্রোফাইল সেভ হয়েছে ✓", "ok");
+    render();
+  } catch (err) {
+    console.error(err);
+    toast("সেভ ব্যর্থ: " + (err.message || "অজানা সমস্যা"), "err");
   }
-  const g = id => (document.getElementById(id) || {}).value || "";
-  S.profile = {
-    name: g("pN"),
-    title: g("pTitle"),
-    company: g("pCompany"),
-    bio: g("pB"),
-    location: g("pLoc"),
-    college: g("pC"),
-    subject: g("pS"),
-    birthday: g("pBday"),
-    blood: g("pBlood"),
-    address: g("pAddr"),
-    email: g("pE"),
-    phone: g("pP"),
-    whatsapp: g("pWa"),
-    website: g("pWeb"),
-    linkedin: g("pLi"),
-    github: g("pGh"),
-    facebook: g("pFb"),
-    skills: g("pSkills"),
-    goals: g("pG"),
-    avatar,
-    cover
-  };
-  updateUser(); save();
-  toast("প্রোফাইল সেভ হয়েছে", "ok");
-  render();
 }
 
 /* ============================================================
