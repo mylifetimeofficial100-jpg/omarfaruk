@@ -120,12 +120,17 @@ button, input, textarea, select { font-family: inherit; color: inherit; }
   box-shadow: var(--shadow-lg);
 }
 .gate-logo {
-  width: 56px; height: 56px; margin: 0 auto 16px;
+  width: 84px; height: 84px; margin: 0 auto 16px;
   background: var(--grad);
-  border-radius: 16px;
+  border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 24px; font-weight: 800; color: #fff;
-  box-shadow: 0 8px 20px rgba(109,94,252,.28);
+  font-size: 28px; font-weight: 800; color: #fff;
+  box-shadow: 0 10px 28px rgba(109,94,252,.32);
+  overflow: hidden;
+  border: 3px solid color-mix(in srgb, var(--card) 80%, var(--accent));
+}
+.gate-logo img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
 }
 .gate-card h1 {
   font-size: 22px; font-weight: 700; margin-bottom: 4px;
@@ -884,7 +889,7 @@ table.mini input { width: 100%; background: none; border: none; outline: none; c
 <!-- GATE -->
 <div id="gate">
   <div class="gate-card">
-    <div class="gate-logo">O</div>
+    <div class="gate-logo"><img src="profile.jpg" alt="Omar Faruk" onerror="this.parentElement.textContent='O'"></div>
     <h1>Omar Command Center</h1>
     <p class="sub">Omar Faruk</p>
 
