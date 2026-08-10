@@ -1,0 +1,3849 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Omar Command Center — Final</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+<style>
+/* LIGHT — Final Pro */
+:root, [data-theme="light"] {
+  --bg: #f5f4fb;
+  --bg2: #ffffff;
+  --sidebar: #fbfafe;
+  --card: #ffffff;
+  --card2: #f3f1fa;
+  --border: #e6e2f0;
+  --border2: #d4cfe3;
+  --text: #14121f;
+  --text2: #5c5670;
+  --text3: #908aa3;
+  --accent: #6d5efc;
+  --accent2: #a78bfa;
+  --accent-soft: rgba(109,94,252,.12);
+  --green: #10b981;
+  --green-soft: rgba(16,185,129,.12);
+  --red: #ef4444;
+  --red-soft: rgba(239,68,68,.1);
+  --orange: #f59e0b;
+  --orange-soft: rgba(245,158,11,.12);
+  --radius: 18px;
+  --radius-sm: 12px;
+  --shadow: 0 4px 20px rgba(40,30,80,.06), 0 1px 3px rgba(40,30,80,.04);
+  --shadow-lg: 0 16px 48px rgba(40,30,80,.12), 0 4px 12px rgba(40,30,80,.06);
+  --input-bg: #f7f5fc;
+  --gate-bg: #f0eef8;
+  --overlay: rgba(20,18,35,.4);
+  --grad: linear-gradient(135deg, #6d5efc 0%, #8b5cf6 45%, #a78bfa 100%);
+  --grad-soft: linear-gradient(135deg, rgba(109,94,252,.08), rgba(167,139,250,.06));
+}
+/* DARK — Final Pro */
+[data-theme="dark"] {
+  --bg: #0b0a10;
+  --bg2: #12111a;
+  --sidebar: #0e0d15;
+  --card: #16151f;
+  --card2: #1c1b28;
+  --border: #2a2838;
+  --border2: #3a374c;
+  --text: #f4f2fb;
+  --text2: #a29bb8;
+  --text3: #6e6884;
+  --accent: #8b7cf7;
+  --accent2: #c4b5fd;
+  --accent-soft: rgba(139,124,247,.16);
+  --green: #34d399;
+  --green-soft: rgba(52,211,153,.14);
+  --red: #f87171;
+  --red-soft: rgba(248,113,113,.14);
+  --orange: #fbbf24;
+  --orange-soft: rgba(251,191,36,.14);
+  --shadow: 0 8px 32px rgba(0,0,0,.45);
+  --shadow-lg: 0 20px 50px rgba(0,0,0,.55);
+  --input-bg: rgba(0,0,0,.28);
+  --gate-bg: #0b0a10;
+  --overlay: rgba(0,0,0,.65);
+  --grad: linear-gradient(135deg, #7c6df0 0%, #9b7ef5 45%, #c4b5fd 100%);
+  --grad-soft: linear-gradient(135deg, rgba(139,124,247,.12), rgba(196,181,253,.06));
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body {
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+button, input, textarea, select { font-family: inherit; color: inherit; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+::-webkit-scrollbar-track { background: transparent; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb { background: #3f3b52; }
+
+/* ========== GATE ========== */
+#gate {
+  position: fixed; inset: 0; z-index: 9999;
+  background:
+    radial-gradient(ellipse 90% 55% at 50% -8%, rgba(109,94,252,.16) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 100% 100%, rgba(167,139,250,.1) 0%, transparent 50%),
+    radial-gradient(ellipse 40% 30% at 0% 80%, rgba(139,124,247,.08) 0%, transparent 45%),
+    var(--gate-bg);
+  display: flex; align-items: center; justify-content: center;
+}
+.gate-card {
+  width: 92%; max-width: 400px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 44px 34px 36px;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(12px);
+}
+.gate-logo {
+  width: 72px; height: 72px; margin: 0 auto 22px;
+  background: var(--grad);
+  border-radius: 22px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px; font-weight: 800; color: #fff;
+  box-shadow: 0 12px 32px rgba(109,94,252,.35);
+  letter-spacing: -.5px;
+}
+.gate-card h1 { font-size: 25px; font-weight: 700; margin-bottom: 8px; letter-spacing: -.3px; color: var(--text); }
+.gate-card .sub { color: var(--text2); font-size: 14.5px; margin-bottom: 30px; }
+.gate-card input {
+  width: 100%; padding: 15px 16px; border-radius: 13px;
+  border: 1px solid var(--border); background: var(--input-bg);
+  font-size: 16px; outline: none; margin-bottom: 12px;
+  transition: border .2s, box-shadow .2s; color: var(--text);
+}
+.gate-card input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(109,94,252,.18);
+  background: var(--bg2);
+}
+.gate-card .btn-main {
+  width: 100%; padding: 15px; border: none; border-radius: 13px;
+  background: var(--grad);
+  color: #fff; font-size: 16px; font-weight: 600; cursor: pointer;
+  box-shadow: 0 8px 24px rgba(109,94,252,.3);
+  transition: transform .15s, box-shadow .15s;
+}
+.gate-card .btn-main:hover { transform: translateY(-1px); box-shadow: 0 10px 28px rgba(109,94,252,.38); }
+#gateErr { color: var(--red); font-size: 13px; min-height: 20px; margin-top: 12px; }
+
+/* ========== APP SHELL ========== */
+#app { display: none; height: 100vh; }
+.shell { display: flex; height: 100%; }
+
+/* Sidebar */
+#sidebar {
+  width: 272px; flex-shrink: 0;
+  background: var(--sidebar);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  transition: transform .28s cubic-bezier(.4,0,.2,1);
+  z-index: 100;
+  box-shadow: 2px 0 16px rgba(26,29,38,.03);
+}
+.sb-top {
+  padding: 22px 18px 16px;
+  display: flex; align-items: center; gap: 13px;
+}
+.sb-logo {
+  width: 42px; height: 42px; border-radius: 13px;
+  background: var(--grad);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 18px; color: #fff; flex-shrink: 0;
+  box-shadow: 0 6px 18px rgba(109,94,252,.3);
+}
+.sb-title { font-size: 14.5px; font-weight: 700; letter-spacing: -.2px; color: var(--text); line-height: 1.25; }
+.sb-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
+
+.sb-nav { flex: 1; overflow-y: auto; padding: 4px 10px 16px; }
+.nav-label {
+  font-size: 10.5px; font-weight: 600; color: var(--text3);
+  text-transform: uppercase; letter-spacing: .8px;
+  padding: 16px 12px 7px;
+}
+.nav-btn {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 13px; border-radius: 12px;
+  cursor: pointer; color: var(--text2); font-size: 14.5px;
+  transition: all .15s; margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left;
+}
+.nav-btn:hover { background: var(--card2); color: var(--text); }
+.nav-btn.active {
+  background: var(--accent-soft); color: var(--accent); font-weight: 600;
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+.nav-btn .ico { width: 22px; text-align: center; font-size: 17px; flex-shrink: 0; }
+
+.sb-bottom {
+  padding: 12px; border-top: 1px solid var(--border);
+}
+.user-pill {
+  display: flex; align-items: center; gap: 11px;
+  padding: 10px; border-radius: 13px; cursor: pointer;
+  transition: background .15s;
+}
+.user-pill:hover { background: var(--card2); }
+.avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--grad);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 15px; color: #fff; overflow: hidden; flex-shrink: 0;
+}
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.user-meta { flex: 1; min-width: 0; }
+.user-meta .nm { font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+.user-meta .rl { font-size: 11px; color: var(--text3); }
+
+#overlay {
+  display: none; position: fixed; inset: 0;
+  background: var(--overlay); z-index: 90;
+}
+
+/* Main area */
+#main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; background: var(--bg); }
+#topbar {
+  height: 60px; flex-shrink: 0;
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg2) 88%, transparent);
+  backdrop-filter: blur(20px) saturate(1.2);
+  position: relative;
+}
+#burger {
+  display: none; background: none; border: none;
+  color: var(--text); font-size: 22px; cursor: pointer; padding: 6px;
+}
+#pageTitle { flex: 1; min-width: 0; font-size: 16px; font-weight: 700; letter-spacing: -.25px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#topRight { display: flex; align-items: center; gap: 8px; }
+#saveDot {
+  font-size: 12px; color: var(--text3); margin-right: 4px;
+}
+#searchWrap { display: flex; align-items: center; gap: 6px; max-width: 260px; flex: 1; margin: 0 4px; }
+#searchWrap .input { width: 100%; }
+#searchToggle { display: none; background: none; border: none; font-size: 18px; cursor: pointer; padding: 6px; color: var(--text); }
+@media (max-width: 720px) {
+  #searchWrap { display: none; position: absolute; left: 48px; right: 12px; top: 58px; max-width: none; z-index: 70;
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 8px; box-shadow: var(--shadow); }
+  #searchWrap.open { display: flex; }
+  #searchToggle { display: inline-flex; }
+  #netBadge { display: none; }
+  #saveDot { display: none; }
+}
+
+#content {
+  flex: 1; overflow-y: auto;
+  padding: 24px 26px 110px;
+  background: var(--bg);
+}
+
+/* ========== SHARED UI ========== */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 10px 16px; border-radius: 12px;
+  border: 1px solid var(--border); background: var(--card);
+  font-size: 13.5px; font-weight: 500; cursor: pointer;
+  transition: all .15s; white-space: nowrap; color: var(--text);
+}
+.btn:hover { background: var(--card2); border-color: var(--border2); }
+.btn-primary {
+  background: var(--grad);
+  border: none; color: #fff; font-weight: 600;
+  box-shadow: 0 6px 20px rgba(109,94,252,.3);
+  letter-spacing: .01em;
+}
+.btn-primary:hover { opacity: .96; transform: translateY(-1.5px); box-shadow: 0 10px 28px rgba(109,94,252,.4); }
+.btn-danger { color: var(--red); border-color: rgba(240,68,56,.25); }
+.btn-sm { padding: 7px 12px; font-size: 12.5px; border-radius: 10px; }
+.btn-lg { padding: 13px 22px; font-size: 15px; border-radius: 13px; }
+.btn-icon {
+  width: 40px; height: 40px; padding: 0; border-radius: 12px;
+  font-size: 18px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  transition: border-color .15s, box-shadow .2s, transform .15s;
+}
+.card-hover:hover {
+  border-color: var(--border2);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.grid { display: grid; gap: 16px; }
+.g2 { grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); }
+.g3 { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+.g4 { grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); }
+
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px 18px;
+  box-shadow: var(--shadow);
+  position: relative; overflow: hidden;
+  transition: transform .15s, box-shadow .2s;
+}
+.stat-card::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--grad); opacity: .85;
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.stat-label { font-size: 12px; color: var(--text3); margin-bottom: 8px; font-weight: 600; letter-spacing: .3px; text-transform: uppercase; }
+.stat-num { font-size: 28px; font-weight: 800; letter-spacing: -.8px; color: var(--text); }
+.stat-sub { font-size: 12px; color: var(--text2); margin-top: 4px; }
+
+.section-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.section-head h3 { font-size: 13.5px; font-weight: 600; color: var(--text2); letter-spacing: .2px; }
+
+.form-group { margin-bottom: 15px; }
+.form-group label {
+  display: block; font-size: 12px; font-weight: 500;
+  color: var(--text3); margin-bottom: 7px;
+}
+.input, .select, .textarea {
+  width: 100%; padding: 12px 14px; border-radius: 11px;
+  border: 1px solid var(--border); background: var(--input-bg);
+  font-size: 14.5px; outline: none; transition: border .2s, box-shadow .2s; color: var(--text);
+}
+.input:focus, .select:focus, .textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(109,94,252,.15);
+  background: var(--bg2);
+}
+.textarea { min-height: 90px; resize: vertical; }
+
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 4px 10px; border-radius: 99px;
+  font-size: 11px; font-weight: 600; letter-spacing: .02em;
+}
+.b-blue { background: var(--accent-soft); color: var(--accent); }
+.b-green { background: var(--green-soft); color: var(--green); }
+.b-red { background: var(--red-soft); color: var(--red); }
+.b-orange { background: var(--orange-soft); color: var(--orange); }
+
+.empty {
+  text-align: center; padding: 56px 20px; color: var(--text3);
+}
+.empty .big { font-size: 52px; margin-bottom: 14px; opacity: .5; }
+.empty p { font-size: 14.5px; margin-bottom: 20px; }
+
+/* List items */
+.item {
+  display: flex; align-items: center; gap: 13px;
+  padding: 14px 15px; border-radius: 13px;
+  background: var(--card); border: 1px solid var(--border);
+  margin-bottom: 8px; transition: background .15s, border-color .15s;
+  box-shadow: var(--shadow);
+}
+.item:hover { background: var(--card2); border-color: var(--border2); }
+.item.done .item-title { text-decoration: line-through; color: var(--text3); }
+.item-check { width: 20px; height: 20px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+.item-body { flex: 1; min-width: 0; }
+.item-title { font-size: 14.5px; font-weight: 500; color: var(--text); }
+.item-meta { font-size: 12px; color: var(--text3); margin-top: 3px; }
+
+/* Modal */
+.modal-back {
+  position: fixed; inset: 0; background: var(--overlay);
+  z-index: 500; display: none; align-items: center; justify-content: center;
+  padding: 16px; backdrop-filter: blur(4px);
+}
+.modal-back.show { display: flex; }
+.modal {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px; width: 100%; max-width: 460px;
+  max-height: 88vh; overflow-y: auto; padding: 28px;
+  box-shadow: var(--shadow-lg);
+  color: var(--text);
+}
+.modal h3 { font-size: 18px; font-weight: 700; margin-bottom: 20px; letter-spacing: -.2px; color: var(--text); }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+
+/* FAB */
+#fab {
+  position: fixed; bottom: 28px; right: 28px;
+  width: 58px; height: 58px; border-radius: 50%;
+  background: var(--grad);
+  color: #fff; border: none; font-size: 30px;
+  cursor: pointer; box-shadow: 0 10px 32px rgba(109,94,252,.38);
+  z-index: 40; display: none; align-items: center; justify-content: center;
+  transition: transform .15s, box-shadow .15s;
+}
+#fab.show { display: flex; }
+#fab:hover { transform: scale(1.07); box-shadow: 0 12px 36px rgba(109,94,252,.45); }
+
+#toastWrap {
+  position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+  z-index: 999; display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+  width: min(400px, 92vw);
+}
+.toast {
+  background: var(--card); border: 1px solid var(--border); color: var(--text);
+  padding: 12px 16px; border-radius: 12px; box-shadow: var(--shadow-lg);
+  font-size: 13.5px; animation: toastIn .25s ease;
+  display: flex; align-items: center; gap: 10px;
+}
+.toast.ok { border-left: 3px solid var(--green); }
+.toast.err { border-left: 3px solid var(--red); }
+.toast.info { border-left: 3px solid var(--accent); }
+@keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.folder-row {
+  display: flex; align-items: center; gap: 6px; padding: 8px 10px 4px;
+  font-size: 11.5px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .4px;
+}
+#searchPanel {
+  display: none; position: fixed; top: 64px; left: 50%; transform: translateX(-50%);
+  width: min(420px, 94vw); max-height: min(60vh, 420px); overflow-y: auto;
+  background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+  box-shadow: var(--shadow-lg); z-index: 80; padding: 8px;
+}
+#searchPanel.show { display: block; }
+#timerPill {
+  display: none; align-items: center; gap: 6px; font-size: 12px; font-weight: 600;
+  padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent);
+  white-space: nowrap; cursor: pointer;
+}
+#timerPill.show { display: inline-flex; }
+#netBadge {
+  font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 999px;
+  white-space: nowrap;
+}
+#netBadge.online { background: var(--green-soft); color: var(--green); }
+#netBadge.offline { background: var(--orange-soft); color: var(--orange); }
+.habit-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+.habit-scroll .habit-row { min-width: 420px; }
+.block-wrap.dragging { opacity: .45; }
+.block-wrap.drag-over { outline: 2px dashed var(--accent); outline-offset: 2px; }
+.money-bar-wrap { display: flex; align-items: flex-end; gap: 6px; height: 100px; margin-top: 12px; }
+.money-bar {
+  flex: 1; background: var(--accent-soft); border-radius: 6px 6px 0 0;
+  min-height: 4px; position: relative; transition: height .2s;
+}
+.money-bar.out { background: var(--red-soft); }
+.port-cover {
+  width: 100%; height: 120px; object-fit: cover; border-radius: 12px;
+  margin-bottom: 10px; background: var(--card2);
+}
+.filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; align-items: center; }
+.search-hit {
+  padding: 10px 12px; border-radius: 10px; cursor: pointer; font-size: 13.5px;
+}
+.search-hit:hover { background: var(--card2); }
+.search-hit .meta { font-size: 11px; color: var(--text3); margin-top: 2px; }
+#onboardBanner {
+  background: linear-gradient(135deg, rgba(59,125,255,.12), rgba(108,92,231,.1));
+  border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; margin-bottom: 18px;
+  display: flex; gap: 12px; align-items: flex-start; justify-content: space-between;
+}
+#uploadBar {
+  display: none; position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 1000;
+  background: transparent;
+}
+#uploadBar .fill {
+  height: 100%; width: 0%; background: var(--grad);
+  transition: width .2s;
+}
+
+/* ========== DASHBOARD ========== */
+.greet { margin-bottom: 28px; }
+.greet h1 { font-size: 27px; font-weight: 700; letter-spacing: -.4px; }
+.greet p { color: var(--text2); font-size: 14.5px; margin-top: 5px; }
+
+/* Home Notepad + Todo */
+.home-duo { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 22px; }
+@media (max-width: 860px) { .home-duo { grid-template-columns: 1fr; } }
+.home-panel {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); display: flex; flex-direction: column; min-height: 380px; overflow: hidden;
+}
+.home-panel-head {
+  display: flex; align-items: center; gap: 10px; padding: 14px 16px;
+  border-bottom: 1px solid var(--border); background: var(--bg2);
+}
+.home-panel-head .ph-ico {
+  width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+.home-panel-head .ph-title { font-size: 14.5px; font-weight: 700; color: var(--text); }
+.home-panel-head .ph-sub { font-size: 11.5px; color: var(--text3); margin-top: 1px; }
+.home-panel-head .ph-right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+.np-body { flex: 1; display: flex; flex-direction: column; padding: 0; min-height: 0; }
+.np-ta {
+  flex: 1; width: 100%; min-height: 260px; border: none; outline: none; resize: none;
+  padding: 16px 18px; font-size: 15px; line-height: 1.7; color: var(--text);
+  background: transparent; font-family: inherit;
+}
+.np-ta::placeholder { color: var(--text3); }
+.np-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 10px 16px; border-top: 1px solid var(--border); background: var(--bg2);
+  font-size: 11.5px; color: var(--text3);
+}
+.np-foot .np-save-ok { color: var(--green); font-weight: 600; }
+.todo-quick {
+  display: flex; gap: 8px; padding: 12px 14px; border-bottom: 1px solid var(--border);
+}
+.todo-quick input {
+  flex: 1; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--input-bg); font-size: 13.5px; outline: none; color: var(--text);
+}
+.todo-quick input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); background: var(--bg2); }
+.todo-list-home { flex: 1; overflow-y: auto; padding: 8px 10px 14px; max-height: 320px; }
+.todo-item-h {
+  display: flex; align-items: flex-start; gap: 10px; padding: 10px 10px;
+  border-radius: 11px; margin-bottom: 4px; transition: background .12s;
+  border: 1px solid transparent;
+}
+.todo-item-h:hover { background: var(--bg2); border-color: var(--border); }
+.todo-item-h.done .todo-t { text-decoration: line-through; color: var(--text3); }
+.todo-item-h input[type=checkbox] { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+.todo-item-h .todo-t { font-size: 14px; font-weight: 500; color: var(--text); line-height: 1.4; }
+.todo-item-h .todo-m { font-size: 11.5px; color: var(--text3); margin-top: 3px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.todo-item-h .todo-acts { margin-left: auto; display: flex; gap: 4px; opacity: 0; transition: opacity .15s; flex-shrink: 0; }
+.todo-item-h:hover .todo-acts { opacity: 1; }
+.todo-filters { display: flex; gap: 4px; }
+.todo-filters button {
+  border: none; background: transparent; font-size: 11.5px; font-weight: 600;
+  padding: 5px 10px; border-radius: 8px; cursor: pointer; color: var(--text3);
+}
+.todo-filters button.on { background: var(--accent-soft); color: var(--accent); }
+.pri-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.pri-dot.high { background: var(--red); }
+.pri-dot.med { background: var(--orange); }
+.pri-dot.low { background: var(--green); }
+
+/* ========== WORKSPACE / PAGES ========== */
+.ws-layout {
+  display: flex; gap: 0; height: calc(100vh - 130px); min-height: 420px;
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  overflow: hidden; box-shadow: var(--shadow);
+}
+.ws-tree {
+  width: 260px; flex-shrink: 0; overflow-y: auto;
+  background: var(--bg2); border-right: 1px solid var(--border);
+  padding: 12px 10px 20px; display: flex; flex-direction: column;
+}
+.ws-tree-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 4px 8px 12px; gap: 8px;
+}
+.ws-tree-head h4 { font-size: 12px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .6px; margin: 0; }
+.ws-search {
+  width: 100%; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--card); font-size: 13px; outline: none; margin-bottom: 10px; color: var(--text);
+}
+.ws-search:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.ws-tree-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 11px; border-radius: 10px; cursor: pointer;
+  font-size: 13.5px; color: var(--text2); margin-bottom: 2px;
+  transition: background .12s, color .12s; border: none; background: none; width: 100%; text-align: left;
+}
+.ws-tree-item:hover { background: var(--card); color: var(--text); }
+.ws-tree-item.active {
+  background: var(--accent-soft); color: var(--accent); font-weight: 600;
+}
+.ws-tree-item .pg-ico { flex-shrink: 0; font-size: 14px; opacity: .85; }
+.ws-tree-item .pg-title { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ws-folder-head {
+  display: flex; align-items: center; gap: 6px; padding: 10px 10px 4px;
+  font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .4px;
+}
+.ws-folder-head .fd-acts { margin-left: auto; display: flex; gap: 2px; opacity: 0; transition: opacity .15s; }
+.ws-folder-head:hover .fd-acts { opacity: 1; }
+.ws-folder-head button {
+  background: none; border: none; cursor: pointer; color: var(--text3); font-size: 12px; padding: 2px 5px; border-radius: 6px;
+}
+.ws-folder-head button:hover { background: var(--card); color: var(--text); }
+.ws-editor {
+  flex: 1; overflow-y: auto; min-width: 0; padding: 28px 32px 80px;
+  background: var(--card);
+}
+.ws-editor-top {
+  display: flex; align-items: flex-start; gap: 12px; margin-bottom: 6px; flex-wrap: wrap;
+}
+.ws-title-input {
+  flex: 1; min-width: 180px; font-size: 28px; font-weight: 700;
+  background: transparent; border: none; outline: none;
+  color: var(--text); padding: 0 0 8px; letter-spacing: -.4px; line-height: 1.25;
+}
+.ws-title-input::placeholder { color: var(--text3); }
+.ws-meta-row {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border);
+}
+.ws-meta-row .select { width: auto; min-width: 130px; padding: 7px 10px; font-size: 12.5px; border-radius: 9px; }
+.ws-meta-hint { font-size: 12px; color: var(--text3); margin-left: auto; }
+.block {
+  position: relative;
+  background: transparent; border: 1px solid transparent;
+  border-radius: 12px; padding: 12px 14px 12px 36px; margin-bottom: 4px;
+  transition: background .12s, border-color .12s;
+}
+.block:hover, .block:focus-within {
+  background: var(--bg2); border-color: var(--border);
+}
+.block.dragging { opacity: .4; }
+.block.drag-over { outline: 2px dashed var(--accent); outline-offset: 1px; }
+.block-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 6px; opacity: 0; transition: opacity .15s;
+  position: absolute; left: 4px; top: 10px; right: 8px; pointer-events: none;
+}
+.block:hover .block-bar, .block:focus-within .block-bar { opacity: 1; pointer-events: auto; }
+.block-label {
+  font-size: 11px; color: var(--text3); letter-spacing: .3px; font-weight: 600;
+  cursor: grab; user-select: none; padding: 2px 4px;
+}
+.block-acts { display: flex; gap: 2px; margin-left: auto; }
+.block-x {
+  background: none; border: none; color: var(--text3); cursor: pointer;
+  font-size: 13px; padding: 3px 7px; border-radius: 6px; line-height: 1;
+}
+.block-x:hover { background: var(--card); color: var(--text); }
+.block-x.danger:hover { color: var(--red); background: var(--red-soft); }
+.block-ta {
+  width: 100%; min-height: 56px; background: transparent;
+  border: none; border-radius: 0; color: var(--text);
+  padding: 4px 0; font-size: 15px; line-height: 1.6;
+  resize: vertical; outline: none;
+}
+.block-ta:focus { box-shadow: none; background: transparent; }
+.todo-line {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 0; border-bottom: 1px solid var(--border);
+}
+.todo-line:last-child { border-bottom: none; }
+.todo-line input[type=text] {
+  flex: 1; background: none; border: none; outline: none;
+  color: var(--text); font-size: 14.5px;
+}
+.todo-line.done input[type=text] { text-decoration: line-through; color: var(--text3); }
+.add-line { background: none; border: none; color: var(--accent); font-size: 13px; cursor: pointer; margin-top: 8px; padding: 4px 0; font-weight: 500; }
+.block-tools {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-top: 20px;
+  padding: 14px; background: var(--bg2); border: 1px dashed var(--border);
+  border-radius: 14px;
+}
+.block-tools .btn { border-radius: 10px; font-size: 12.5px; padding: 8px 12px; background: var(--card); }
+.block-tools .tools-label {
+  width: 100%; font-size: 11px; font-weight: 600; color: var(--text3);
+  text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px;
+}
+.ws-empty-blocks {
+  text-align: center; padding: 48px 20px; color: var(--text3);
+  border: 1px dashed var(--border); border-radius: 14px; margin-bottom: 12px;
+}
+.ws-empty-blocks p { margin-bottom: 6px; font-size: 14px; }
+
+/* Table */
+.tbl-wrap { overflow-x: auto; }
+table.mini { border-collapse: collapse; width: 100%; min-width: 320px; }
+table.mini th, table.mini td { border: 1px solid var(--border); padding: 6px 8px; }
+table.mini th { background: var(--card2); font-size: 12px; color: var(--text3); }
+table.mini input { width: 100%; background: none; border: none; outline: none; color: var(--text); font-size: 13.5px; }
+
+/* Media */
+.media-img { max-width: 100%; border-radius: 10px; margin-top: 8px; }
+.media-vid { width: 100%; max-width: 520px; aspect-ratio: 16/9; border-radius: 10px; background: #000; margin-top: 8px; }
+.file-link {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 13px; background: var(--card2); border: 1px solid var(--border);
+  border-radius: 9px; font-size: 13px; margin-top: 8px; text-decoration: none; color: var(--accent);
+}
+
+/* Habits */
+.habit-row {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 10px;
+}
+.habit-cell {
+  aspect-ratio: 1; border-radius: 8px; background: var(--bg2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; cursor: pointer; transition: .15s; color: var(--text3);
+}
+.habit-cell.on { background: var(--green); color: #fff; font-weight: 700; }
+.habit-cell.today { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* Calendar */
+.cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+.cal-dow { text-align: center; font-size: 11px; color: var(--text3); padding: 4px; font-weight: 600; }
+.cal-cell {
+  min-height: 68px; background: var(--card); border: 1px solid var(--border);
+  border-radius: 9px; padding: 5px 6px; font-size: 12px;
+  transition: border-color .15s, background .15s;
+}
+.cal-cell.mute { opacity: .3; }
+.cal-cell.today {
+  border: 2px solid var(--accent);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 1px var(--accent-soft);
+}
+.cal-cell.today .cal-num {
+  color: var(--accent);
+  font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 22px; height: 22px; border-radius: 50%;
+  background: var(--accent); color: #fff; font-size: 11px;
+  margin-bottom: 4px;
+}
+.cal-num { font-weight: 600; margin-bottom: 3px; }
+.cal-ev {
+  font-size: 10px; padding: 2px 4px; border-radius: 4px;
+  background: var(--accent-soft); color: var(--accent);
+  margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* Tools: Clock & Calculator */
+.clock-big {
+  font-size: 58px; font-weight: 700; letter-spacing: -1.5px;
+  text-align: center; font-variant-numeric: tabular-nums;
+  background: var(--grad);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.clock-date { text-align: center; color: var(--text2); font-size: 15.5px; margin-top: 8px; }
+
+.calc-box {
+  max-width: 340px; margin: 0 auto;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px; padding: 20px; box-shadow: var(--shadow-lg);
+}
+.calc-display {
+  width: 100%; padding: 18px; border-radius: 13px;
+  background: var(--input-bg); border: 1px solid var(--border);
+  font-size: 30px; font-weight: 600; text-align: right;
+  margin-bottom: 14px; font-variant-numeric: tabular-nums;
+  outline: none; color: var(--text);
+}
+.calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.calc-btn {
+  padding: 16px 0; border-radius: 13px; border: 1px solid var(--border);
+  background: var(--card2); font-size: 18px; font-weight: 600;
+  cursor: pointer; transition: .12s; color: var(--text);
+}
+.calc-btn:hover { background: var(--border); opacity: .95; }
+.calc-btn.op { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+.calc-btn.eq { background: var(--grad); color: #fff; border: none; }
+.calc-btn.fn { font-size: 13px; color: var(--text2); }
+
+/* Time Tracker */
+.timer-display {
+  font-size: 48px; font-weight: 700; text-align: center;
+  font-variant-numeric: tabular-nums; letter-spacing: -1px;
+  margin: 16px 0;
+}
+.timer-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+/* Portfolio */
+.port-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px; transition: .15s;
+}
+.port-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+
+/* Profile */
+.prof-hero {
+  display: flex; align-items: flex-end; gap: 18px; margin-bottom: 8px;
+  position: relative; z-index: 1;
+}
+.prof-cover {
+  height: 140px; border-radius: var(--radius) var(--radius) 0 0;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 55%, #a78bfa 100%);
+  margin: -20px -20px 0; position: relative; overflow: hidden;
+}
+.prof-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.prof-avatar {
+  width: 96px; height: 96px; border-radius: 50%;
+  background: var(--grad);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px; font-weight: 700; color: #fff; overflow: hidden; flex-shrink: 0;
+  border: 4px solid var(--card); box-shadow: var(--shadow);
+  margin-top: -48px;
+}
+.prof-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.prof-stat-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 18px 0;
+}
+.prof-stat {
+  text-align: center; padding: 12px 8px; background: var(--card2);
+  border-radius: 12px; border: 1px solid var(--border);
+}
+.prof-stat .n { font-size: 18px; font-weight: 700; color: var(--text); }
+.prof-stat .l { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.prof-section {
+  margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border);
+}
+.prof-section h4 {
+  font-size: 13px; font-weight: 600; color: var(--text2);
+  margin-bottom: 12px; letter-spacing: .2px;
+}
+.prof-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 5px 11px; border-radius: 20px; font-size: 12px; font-weight: 500;
+  background: var(--accent-soft); color: var(--accent); margin: 0 6px 6px 0;
+}
+.prof-link-row {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;
+}
+.prof-link-row a {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 12px; border-radius: 10px; font-size: 12.5px;
+  background: var(--card2); border: 1px solid var(--border);
+  color: var(--text); text-decoration: none; transition: .15s;
+}
+.prof-link-row a:hover { border-color: var(--accent); color: var(--accent); }
+@media (max-width: 600px) {
+  .prof-stat-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  #sidebar {
+    position: fixed; top: 0; bottom: 0; left: 0;
+    transform: translateX(-100%);
+  }
+  #sidebar.open { transform: translateX(0); }
+  #overlay.show { display: block; }
+  #burger { display: block; }
+  #content { padding: 16px 14px 90px; }
+  .g2, .g3, .g4 { grid-template-columns: 1fr; }
+  .ws-layout { flex-direction: column; height: auto; min-height: 0; }
+  .ws-tree {
+    width: 100%; border-right: none; border-bottom: 1px solid var(--border);
+    max-height: 200px; padding: 10px;
+  }
+  .ws-editor { padding: 18px 16px 70px; }
+  .clock-big { font-size: 42px; }
+}
+</style>
+</head>
+<body>
+
+<!-- GATE -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-logo">O</div>
+    <h1>Omar Command Center</h1>
+    <p class="sub">Omar Faruk · Personal Life OS</p>
+
+    <button class="btn-main" id="googleBtn" onclick="loginWithGoogle()" style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.2 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.5-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 12 24 12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.2 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.3 35.3 26.8 36 24 36c-5.3 0-9.7-3.3-11.3-8H6.3C9.7 39.7 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1.1 3.2-3.5 5.7-6.4 7.2l.1.1 6.2 5.2C39.2 37.3 44 31.5 44 24c0-1.3-.1-2.5-.4-3.5z"/></svg>
+      Google দিয়ে লগইন
+    </button>
+
+    <div style="display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--text3);font-size:12px">
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      অথবা
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+    </div>
+
+    <div style="position:relative">
+      <input type="password" id="pw" placeholder="লোকাল পাসওয়ার্ড" autocomplete="current-password" style="padding-right:44px">
+      <button type="button" onclick="toggleGatePw()" id="gatePwEye" title="পাসওয়ার্ড দেখান" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);width:34px;height:34px;border:none;background:none;cursor:pointer;font-size:16px;color:var(--text3)">👁️</button>
+    </div>
+    <button class="btn-main" onclick="loginLocal()" style="background:#5a6275;box-shadow:none">পাসওয়ার্ড দিয়ে প্রবেশ</button>
+    <div id="gateErr"></div>
+    <p id="gateHint" style="margin-top:18px;font-size:12px;color:var(--text3);line-height:1.5"></p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="shell">
+    <div id="overlay" onclick="closeSb()"></div>
+
+    <aside id="sidebar">
+      <div class="sb-top">
+        <div class="sb-logo">O</div>
+        <div>
+          <div class="sb-title">Omar Command Center</div>
+          <div class="sb-sub">Omar Faruk · Personal Life OS</div>
+        </div>
+      </div>
+
+      <nav class="sb-nav">
+        <div class="nav-label">মূল</div>
+        <button class="nav-btn active" data-v="dash" onclick="go('dash')"><span class="ico">🏠</span> কমান্ড সেন্টার</button>
+        <button class="nav-btn" data-v="work" onclick="go('work')"><span class="ico">📂</span> ওয়ার্কস্পেস</button>
+        <button class="nav-btn" data-v="tasks" onclick="go('tasks')"><span class="ico">✅</span> টাস্ক</button>
+        <button class="nav-btn" data-v="projects" onclick="go('projects')"><span class="ico">📁</span> প্রজেক্ট</button>
+
+        <div class="nav-label">প্রোডাক্টিভিটি</div>
+        <button class="nav-btn" data-v="time" onclick="go('time')"><span class="ico">⏱️</span> টাইম ট্র্যাকার</button>
+        <button class="nav-btn" data-v="habits" onclick="go('habits')"><span class="ico">🔥</span> হ্যাবিট</button>
+        <button class="nav-btn" data-v="cal" onclick="go('cal')"><span class="ico">📅</span> ক্যালেন্ডার</button>
+
+        <div class="nav-label">জীবন</div>
+        <button class="nav-btn" data-v="money" onclick="go('money')"><span class="ico">💰</span> মানি ম্যানেজমেন্ট</button>
+        <button class="nav-btn" data-v="files" onclick="go('files')"><span class="ico">📎</span> ফাইল ও মিডিয়া</button>
+        <button class="nav-btn" data-v="portfolio" onclick="go('portfolio')"><span class="ico">💼</span> পোর্টফোলিও</button>
+
+        <div class="nav-label">টুলস</div>
+        <button class="nav-btn" data-v="clock" onclick="go('clock')"><span class="ico">🕐</span> ঘড়ি</button>
+        <button class="nav-btn" data-v="calc" onclick="go('calc')"><span class="ico">🔢</span> ক্যালকুলেটর</button>
+
+        <div class="nav-label">সিস্টেম</div>
+        <button class="nav-btn" data-v="profile" onclick="go('profile')"><span class="ico">👤</span> প্রোফাইল</button>
+        <button class="nav-btn" data-v="settings" onclick="go('settings')"><span class="ico">⚙️</span> সেটিংস</button>
+      </nav>
+
+      <div class="sb-bottom">
+        <div class="user-pill" onclick="go('profile')">
+          <div class="avatar" id="sbAv">A</div>
+          <div class="user-meta">
+            <div class="nm" id="sbNm">ইউজার</div>
+            <div class="rl">Omar Command Center</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div id="main">
+      <div id="topbar">
+        <button id="burger" onclick="toggleSb()">☰</button>
+        <div id="pageTitle">কমান্ড সেন্টার</div>
+        <button id="searchToggle" onclick="toggleSearch()" title="সার্চ">🔍</button>
+        <div id="searchWrap">
+          <input class="input" id="globalSearch" placeholder="🔍 সার্চ..." style="padding:8px 12px;font-size:13px" oninput="onGlobalSearch(this.value)" onkeydown="if(event.key==='Escape'){this.value='';onGlobalSearch('');document.getElementById('searchWrap').classList.remove('open')}">
+        </div>
+        <div id="timerPill" onclick="go('time')" title="টাইমার চলছে">⏱ <span id="timerPillTxt">00:00</span></div>
+        <div id="netBadge" class="online">● অনলাইন</div>
+        <div id="saveDot">প্রস্তুত</div>
+        <div id="topRight"></div>
+      </div>
+      <div id="content"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-back" id="modalBack" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modalBox"></div>
+</div>
+
+<button id="fab" onclick="onFab()">+</button>
+<div id="toastWrap"></div>
+<div id="searchPanel"></div>
+<div id="uploadBar"><div class="fill" id="uploadFill"></div></div>
+
+<script>
+/* ============================================================
+   AMAR COMMAND CENTER — Personal Life OS
+   Single-file • Local-first • Professional
+   ============================================================ */
+
+const KEY = "omar_cc_v1";
+const FB_CFG_KEY = "amar_cc_firebase_cfg";
+const DEFAULT_PW = "command2026";
+
+/* ডিফল্ট প্লেসহোল্ডার — সেটিংস থেকে কনফিগ পেস্ট করা যায় */
+let firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+try {
+  const savedCfg = localStorage.getItem(FB_CFG_KEY);
+  if (savedCfg) {
+    const parsed = JSON.parse(savedCfg);
+    if (parsed && parsed.apiKey) firebaseConfig = parsed;
+  }
+} catch (e) {}
+
+let db = null;
+let auth = null;
+let storage = null;
+let useCloud = false;
+let currentUser = null;
+let lastSyncAt = null;
+let lastSyncError = null;
+
+let S = {
+  pw: DEFAULT_PW,
+  profile: {
+    name: "Omar Faruk", bio: "", avatar: "", cover: "", email: "", phone: "", goals: "",
+    college: "", subject: "", location: "", website: "", birthday: "", blood: "",
+    address: "", skills: "", linkedin: "", github: "", facebook: "", whatsapp: "",
+    title: "", company: ""
+  },
+  folders: [{ id: "f_default", name: "সাধারণ" }],
+  pages: [],
+  currentPage: null,
+  tasks: [],
+  projects: [],
+  habits: [],
+  txs: [],
+  events: [],
+  files: [],
+  portfolio: [],
+  timeLogs: [],
+  notepad: { content: "", updated: null },
+  settings: {
+    currency: "৳",
+    weekStart: 0,
+    theme: "light",
+    onboardDone: false,
+    density: "comfortable",
+    dateFormat: "bn",
+    autoSaveHint: true,
+    fabShow: true
+  }
+};
+let settingsTab = "general";
+
+let view = "dash";
+let saveT = null;
+let timer = { running: false, secs: 0, label: "", interval: null, pomoMode: false, pomoPhase: "work", pomoTarget: 25 * 60 };
+let clockInterval = null;
+let calCursor = new Date();
+let workFolderFilter = "all";
+let taskFilter = { status: "open", sort: "due" }; // open|done|all, due|pri|alpha
+let moneyMonth = today().slice(0, 7); // YYYY-MM
+let dragBlockIdx = null;
+
+/* ---------- Firebase init ---------- */
+function initFirebase() {
+  try {
+    if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY") {
+      firebase.initializeApp(firebaseConfig);
+      auth = firebase.auth();
+      db = firebase.firestore();
+      storage = firebase.storage();
+      useCloud = true;
+      console.log("Firebase ready (Auth + Firestore + Storage)");
+    }
+  } catch (e) {
+    console.warn("Firebase init failed", e);
+    useCloud = false;
+  }
+}
+
+function applyTheme(theme) {
+  const t = theme || S.settings.theme || "light";
+  document.documentElement.setAttribute("data-theme", t);
+  S.settings.theme = t;
+}
+
+/** Upload file to Firebase Storage (Google cloud). Returns download URL or null */
+async function uploadToCloud(file, folder) {
+  if (!useCloud || !storage || !currentUser) return null;
+  try {
+    const path = `users/${currentUser.uid}/${folder || "files"}/${Date.now()}_${file.name}`;
+    const ref = storage.ref().child(path);
+    showUpload(10);
+    const task = ref.put(file);
+    task.on("state_changed", snap => {
+      if (snap.totalBytes) showUpload(Math.round(snap.bytesTransferred / snap.totalBytes * 100));
+    });
+    await task;
+    showUpload(100);
+    return await ref.getDownloadURL();
+  } catch (e) {
+    console.warn("Storage upload failed", e);
+    showUpload(100);
+    return null;
+  }
+}
+
+/** Read small file as base64 (local fallback) */
+function readAsDataURL(file, maxBytes) {
+  return new Promise((resolve, reject) => {
+    if (maxBytes && file.size > maxBytes) return reject(new Error("ফাইল বড়"));
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+
+/* ---------- Persistence ---------- */
+function loadLocal() {
+  try {
+    const r = localStorage.getItem(KEY);
+    if (r) Object.assign(S, JSON.parse(r));
+  } catch(e) {}
+  ensureFolders();
+}
+
+async function loadCloud() {
+  if (!useCloud || !db || !currentUser) return;
+  try {
+    const doc = await db.collection("users").doc(currentUser.uid).get();
+    if (doc.exists) {
+      const data = doc.data();
+      const { pw, ...rest } = data;
+      const cloudTime = rest._updatedAt || 0;
+      const localRaw = localStorage.getItem(KEY);
+      let localTime = 0;
+      try { if (localRaw) localTime = JSON.parse(localRaw)._updatedAt || 0; } catch(e) {}
+      // Cloud wins if newer or equal; always prefer cloud after Google login for consistency
+      Object.assign(S, rest);
+      ensureFolders();
+      localStorage.setItem(KEY, JSON.stringify(S));
+      lastSyncAt = new Date();
+      lastSyncError = null;
+      if (cloudTime && localTime && cloudTime < localTime) {
+        toast("ক্লাউড ডেটা লোড হয়েছে (লোকাল নতুন থাকতে পারে — সেভ করলে ক্লাউড আপডেট হবে)", "info");
+      } else {
+        toast("ক্লাউড থেকে ডেটা সিঙ্ক হয়েছে", "ok");
+      }
+    } else {
+      toast("নতুন ক্লাউড প্রোফাইল — লোকাল ডেটা আপলোড হবে", "info");
+      save();
+    }
+  } catch (e) {
+    console.warn("Cloud load failed", e);
+    lastSyncError = e.message || "লোড ব্যর্থ";
+    toast("ক্লাউড লোড ব্যর্থ — লোকাল ডেটা ব্যবহার হচ্ছে", "err");
+  }
+}
+
+function save() {
+  document.getElementById("saveDot").textContent = "সেভ হচ্ছে...";
+  clearTimeout(saveT);
+  saveT = setTimeout(async () => {
+    S._updatedAt = Date.now();
+    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {}
+    if (useCloud && db && currentUser) {
+      try {
+        const { pw, ...cloudData } = S;
+        cloudData._updatedAt = S._updatedAt;
+        // full document write so deletions sync (not merge-only)
+        await db.collection("users").doc(currentUser.uid).set(cloudData);
+        lastSyncAt = new Date();
+        lastSyncError = null;
+        document.getElementById("saveDot").textContent = "✓ ক্লাউড সিঙ্ক";
+      } catch (e) {
+        console.warn("Cloud save failed", e);
+        lastSyncError = e.message || "সিঙ্ক ব্যর্থ";
+        document.getElementById("saveDot").textContent = "⚠ সিঙ্ক ব্যর্থ";
+        toast("ক্লাউড সিঙ্ক ব্যর্থ — লোকাল সেভ আছে", "err");
+        return;
+      }
+    } else {
+      document.getElementById("saveDot").textContent = "✓ লোকাল সেভ";
+    }
+  }, 600);
+}
+
+/* ---------- Auth ---------- */
+function toggleGatePw() {
+  const inp = document.getElementById("pw");
+  const eye = document.getElementById("gatePwEye");
+  if (!inp) return;
+  const show = inp.type === "password";
+  inp.type = show ? "text" : "password";
+  if (eye) eye.textContent = show ? "🙈" : "👁️";
+}
+let gateAttempts = 0;
+let gateLockUntil = 0;
+function loginLocal() {
+  const errEl = document.getElementById("gateErr");
+  if (Date.now() < gateLockUntil) {
+    const secs = Math.ceil((gateLockUntil - Date.now()) / 1000);
+    errEl.textContent = `অনেকবার ভুল হয়েছে — ${secs} সেকেন্ড পর আবার চেষ্টা করুন`;
+    return;
+  }
+  const v = document.getElementById("pw").value;
+  if (v === S.pw) {
+    gateAttempts = 0;
+    sessionStorage.setItem("cc_ok", "local");
+    currentUser = null;
+    enter();
+  } else {
+    gateAttempts++;
+    if (gateAttempts >= 5) {
+      gateLockUntil = Date.now() + 30000;
+      errEl.textContent = "৫ বার ভুল — ৩০ সেকেন্ড অপেক্ষা করুন";
+      gateAttempts = 0;
+    } else {
+      errEl.textContent = `পাসওয়ার্ড ভুল (${gateAttempts}/৫)`;
+    }
+  }
+}
+
+async function loginWithGoogle() {
+  document.getElementById("gateErr").textContent = "";
+  if (!useCloud || !auth) {
+    document.getElementById("gateErr").textContent = "Firebase কনফিগ সেট করা হয়নি। সেটিংস দেখুন।";
+    return;
+  }
+  try {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    const result = await auth.signInWithPopup(provider);
+    currentUser = result.user;
+    // prefill profile from Google
+    if (currentUser.displayName && (!S.profile.name || S.profile.name === "আমার নাম")) {
+      S.profile.name = currentUser.displayName;
+    }
+    if (currentUser.email) S.profile.email = currentUser.email;
+    if (currentUser.photoURL) S.profile.avatar = currentUser.photoURL;
+    sessionStorage.setItem("cc_ok", "google");
+    await loadCloud();
+    enter();
+  } catch (e) {
+    console.error(e);
+    document.getElementById("gateErr").textContent = "Google লগইন ব্যর্থ: " + (e.message || "error");
+  }
+}
+
+function logout() {
+  if (auth) auth.signOut().catch(()=>{});
+  currentUser = null;
+  sessionStorage.removeItem("cc_ok");
+  document.getElementById("app").style.display = "none";
+  document.getElementById("gate").style.display = "flex";
+  document.getElementById("gateErr").textContent = "";
+}
+
+function enter() {
+  document.getElementById("gate").style.display = "none";
+  document.getElementById("app").style.display = "block";
+  applyTheme(S.settings.theme);
+  updateUser();
+  restoreTimerState();
+  go("dash");
+}
+
+function updateNetBadge() {
+  const el = document.getElementById("netBadge");
+  if (!el) return;
+  if (navigator.onLine) {
+    el.className = "online";
+    el.textContent = "● অনলাইন";
+  } else {
+    el.className = "offline";
+    el.textContent = "● অফলাইন";
+  }
+}
+window.addEventListener("online", updateNetBadge);
+window.addEventListener("offline", updateNetBadge);
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    const modal = document.getElementById("modalBack");
+    if (modal && modal.classList.contains("show")) { closeModal(); return; }
+    const panel = document.getElementById("searchPanel");
+    if (panel) panel.classList.remove("show");
+    const wrap = document.getElementById("searchWrap");
+    if (wrap) wrap.classList.remove("open");
+    return;
+  }
+  if (e.key === "/" && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    const t = e.target;
+    if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+    e.preventDefault();
+    const wrap = document.getElementById("searchWrap");
+    if (wrap) wrap.classList.add("open");
+    const inp = document.getElementById("globalSearch");
+    if (inp) { inp.focus(); inp.select(); }
+  }
+});
+
+window.addEventListener("load", async () => {
+  initFirebase();
+  loadLocal();
+  if (!S.profile.name) S.profile.name = "Omar Faruk";
+  applyTheme(S.settings.theme || "light");
+  applyDensity();
+  updateNetBadge();
+  // Gate also follows theme
+  document.documentElement.setAttribute("data-theme", S.settings.theme || "light");
+  const gh = document.getElementById("gateHint");
+  if (gh) {
+    const pwLine = (S.pw === DEFAULT_PW)
+      ? `প্রথমবার? ডিফল্ট পাসওয়ার্ড: <b>${esc(DEFAULT_PW)}</b> — লগইনের পর অবশ্যই সেটিংস থেকে বদলে নিন।`
+      : `আপনার সেট করা পাসওয়ার্ড দিয়ে প্রবেশ করুন।`;
+    gh.innerHTML = useCloud
+      ? `✅ Firebase প্রস্তুত — <b>Google দিয়ে লগইন</b> ব্যবহার করতে পারেন।<br>${pwLine}`
+      : `Google লগইন চালু করতে সেটিংস → Firebase উইজার্ড দেখুন।<br>${pwLine}`;
+  }
+
+  if (useCloud && auth) {
+    auth.onAuthStateChanged(async (user) => {
+      if (user && sessionStorage.getItem("cc_ok") === "google") {
+        currentUser = user;
+        await loadCloud();
+        applyTheme(S.settings.theme);
+        enter();
+      }
+    });
+  }
+
+  if (sessionStorage.getItem("cc_ok") === "local") enter();
+
+  document.getElementById("pw").addEventListener("keydown", e => {
+    if (e.key === "Enter") loginLocal();
+  });
+});
+
+/* ---------- Sidebar ---------- */
+function toggleSb() {
+  document.getElementById("sidebar").classList.toggle("open");
+  document.getElementById("overlay").classList.toggle("show");
+}
+function closeSb() {
+  document.getElementById("sidebar").classList.remove("open");
+  document.getElementById("overlay").classList.remove("show");
+}
+function updateUser() {
+  const p = S.profile;
+  document.getElementById("sbNm").textContent = p.name || "ইউজার";
+  const a = document.getElementById("sbAv");
+  if (p.avatar) a.innerHTML = `<img src="${p.avatar}">`;
+  else a.textContent = (p.name || "A").charAt(0).toUpperCase();
+}
+
+/* ---------- Router ---------- */
+const titles = {
+  dash: "কমান্ড সেন্টার", work: "ওয়ার্কস্পেস", tasks: "টাস্ক",
+  projects: "প্রজেক্ট", time: "টাইম ট্র্যাকার", habits: "হ্যাবিট",
+  cal: "ক্যালেন্ডার", money: "মানি ম্যানেজমেন্ট", files: "ফাইল ও মিডিয়া",
+  portfolio: "পোর্টফোলিও", clock: "ঘড়ি", calc: "ক্যালকুলেটর",
+  profile: "প্রোফাইল", settings: "সেটিংস"
+};
+const fabViews = ["work","tasks","projects","habits","money","files","portfolio","cal"];
+
+function go(v) {
+  view = v;
+  closeSb();
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.v === v));
+  document.getElementById("pageTitle").textContent = titles[v] || v;
+  document.getElementById("fab").classList.toggle("show", S.settings.fabShow !== false && fabViews.includes(v));
+  if (clockInterval) { clearInterval(clockInterval); clockInterval = null; }
+  render();
+  applyDensity();
+}
+
+function render() {
+  const c = document.getElementById("content");
+  const tr = document.getElementById("topRight");
+  tr.innerHTML = "";
+  const map = {
+    dash: rDash, work: rWork, tasks: rTasks, projects: rProjects,
+    time: rTime, habits: rHabits, cal: rCal, money: rMoney,
+    files: rFiles, portfolio: rPort, clock: rClock, calc: rCalc,
+    profile: rProfile, settings: rSettings
+  };
+  (map[view] || rDash)(c, tr);
+}
+
+function onFab() {
+  if (view === "work") createPage();
+  else if (view === "tasks") openTask();
+  else if (view === "projects") openProject();
+  else if (view === "habits") openHabit();
+  else if (view === "money") openTx();
+  else if (view === "files") openFile();
+  else if (view === "portfolio") openPort();
+  else if (view === "cal") openEvent();
+}
+
+/* ---------- Helpers ---------- */
+function esc(s) { return (s||"").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function fmtMoney(n) {
+  n = +n || 0;
+  const neg = n < 0;
+  const parts = Math.abs(n).toFixed(2).split(".");
+  let intPart = parts[0];
+  // South-Asian (lakh/crore) style grouping: last 3 digits, then groups of 2
+  let out = intPart.slice(-3);
+  let rest = intPart.slice(0, -3);
+  while (rest.length > 0) {
+    out = rest.slice(-2) + "," + out;
+    rest = rest.slice(0, -2);
+  }
+  const dec = parts[1] === "00" ? "" : "." + parts[1];
+  return (neg ? "-" : "") + out + dec;
+}
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function today() {
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+function localDateStr(d) {
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+function appLocale() {
+  return (S.settings && S.settings.dateFormat === "en") ? "en-US" : "bn-BD";
+}
+function closeModal() { document.getElementById("modalBack").classList.remove("show"); }
+function showModal(html) {
+  document.getElementById("modalBox").innerHTML = html;
+  document.getElementById("modalBack").classList.add("show");
+}
+function toast(msg, type) {
+  const w = document.getElementById("toastWrap");
+  if (!w) return;
+  const el = document.createElement("div");
+  el.className = "toast " + (type || "info");
+  el.textContent = msg;
+  w.appendChild(el);
+  setTimeout(() => { el.style.opacity = "0"; el.style.transition = "opacity .3s"; setTimeout(() => el.remove(), 300); }, 2800);
+}
+function appConfirm(message, onYes) {
+  showModal(`
+    <h3>নিশ্চিত করুন</h3>
+    <p style="font-size:14px;color:var(--text2);line-height:1.6;margin:12px 0 8px">${esc(message)}</p>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">না</button>
+      <button class="btn btn-danger" id="cfmYes">হ্যাঁ</button>
+    </div>
+  `);
+  setTimeout(() => {
+    const b = document.getElementById("cfmYes");
+    if (b) b.onclick = () => { closeModal(); onYes && onYes(); };
+  }, 0);
+}
+function updateTimerPill() {
+  const pill = document.getElementById("timerPill");
+  const txt = document.getElementById("timerPillTxt");
+  if (!pill || !txt) return;
+  if (timer.running || timer.secs > 0) {
+    pill.classList.add("show");
+    txt.textContent = timer.pomoMode
+      ? fmtTime(Math.max(0, timer.pomoTarget - timer.secs))
+      : fmtTime(timer.secs);
+  } else {
+    pill.classList.remove("show");
+  }
+}
+function ensureFolders() {
+  if (!S.folders || !S.folders.length) S.folders = [{ id: "f_default", name: "সাধারণ" }];
+  S.pages.forEach(p => { if (!p.folderId) p.folderId = "f_default"; });
+  S.tasks.forEach(t => {
+    if (t.project && !t.projectId) {
+      const pr = S.projects.find(x => x.name === t.project);
+      if (pr) t.projectId = pr.id;
+    }
+  });
+}
+
+function showUpload(pct) {
+  const bar = document.getElementById("uploadBar");
+  const fill = document.getElementById("uploadFill");
+  if (!bar || !fill) return;
+  bar.style.display = "block";
+  fill.style.width = Math.min(100, Math.max(0, pct)) + "%";
+  if (pct >= 100) setTimeout(() => { bar.style.display = "none"; fill.style.width = "0%"; }, 400);
+}
+
+function onGlobalSearch(q) {
+  const panel = document.getElementById("searchPanel");
+  if (!panel) return;
+  q = (q || "").trim().toLowerCase();
+  if (!q) { panel.classList.remove("show"); panel.innerHTML = ""; return; }
+  const hits = [];
+  S.pages.forEach(p => {
+    if ((p.title || "").toLowerCase().includes(q)) hits.push({ type: "পেজ", title: p.title || "শিরোনামহীন", go: () => { S.currentPage = p.id; go("work"); } });
+    (p.blocks || []).forEach(b => {
+      const text = (b.content || "") + (b.items || []).map(i => i.text || "").join(" ");
+      if (text.toLowerCase().includes(q)) hits.push({ type: "পেজ কন্টেন্ট", title: (p.title || "") + " — " + text.slice(0, 40), go: () => { S.currentPage = p.id; go("work"); } });
+    });
+  });
+  S.tasks.forEach(t => {
+    if ((t.title || "").toLowerCase().includes(q) || (t.note || "").toLowerCase().includes(q))
+      hits.push({ type: "টাস্ক", title: t.title, go: () => go("tasks") });
+  });
+  S.projects.forEach(p => {
+    if ((p.name || "").toLowerCase().includes(q) || (p.desc || "").toLowerCase().includes(q))
+      hits.push({ type: "প্রজেক্ট", title: p.name, go: () => go("projects") });
+  });
+  S.events.forEach(e => {
+    if ((e.title || "").toLowerCase().includes(q))
+      hits.push({ type: "ইভেন্ট", title: e.title + " (" + (e.date || "") + ")", go: () => go("cal") });
+  });
+  S.txs.forEach(t => {
+    if ((t.title || "").toLowerCase().includes(q) || (t.cat || "").toLowerCase().includes(q))
+      hits.push({ type: "লেনদেন", title: t.title, go: () => go("money") });
+  });
+  S.files.forEach(f => {
+    if ((f.name || "").toLowerCase().includes(q))
+      hits.push({ type: "ফাইল", title: f.name, go: () => go("files") });
+  });
+  if (!hits.length) {
+    panel.innerHTML = '<div style="padding:16px;color:var(--text3);font-size:13px;text-align:center">কিছু পাওয়া যায়নি</div>';
+  } else {
+    panel.innerHTML = hits.slice(0, 20).map((h, i) =>
+      `<div class="search-hit" data-i="${i}"><div>${esc(h.title)}</div><div class="meta">${h.type}</div></div>`
+    ).join("");
+    panel.querySelectorAll(".search-hit").forEach((el, i) => {
+      el.onclick = () => { panel.classList.remove("show"); hits[i].go(); };
+    });
+  }
+  panel.classList.add("show");
+}
+document.addEventListener("click", e => {
+  const panel = document.getElementById("searchPanel");
+  const inp = document.getElementById("globalSearch");
+  if (panel && inp && !panel.contains(e.target) && e.target !== inp) panel.classList.remove("show");
+});
+
+/* ============================================================
+   DASHBOARD — Command Center
+   ============================================================ */
+function rDash(c) {
+  if (!S.notepad) S.notepad = { content: "", updated: null };
+  if (!window._todoFilter) window._todoFilter = "open";
+  const h = new Date().getHours();
+  let greet;
+  if (h >= 5 && h < 12) greet = "Good morning";
+  else if (h >= 12 && h < 17) greet = "Good afternoon";
+  else if (h >= 17 && h < 20) greet = "Good evening";
+  else greet = "Good night";
+  const openT = S.tasks.filter(t => !t.done).length;
+  const doneT = S.tasks.filter(t => t.done).length;
+  const actP = S.projects.filter(p => p.status !== "done").length;
+  const bal = S.txs.reduce((s,t) => s + (t.type==="in" ? +t.amt : -t.amt), 0);
+  const streak = bestStreak();
+  const onboard = !S.settings.onboardDone ? `
+    <div id="onboardBanner">
+      <div>
+        <div style="font-weight:700;margin-bottom:6px">স্বাগতম — দ্রুত শুরু</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.6">
+          ১) প্রোফাইল সেট করুন · ২) ওয়ার্কস্পেসে পেজ/ফোল্ডার বানান · ৩) টাস্ক ও হ্যাবিট যোগ করুন<br>
+          উপরে <b>সার্চ</b> দিয়ে সব খুঁজুন। সেটিংস থেকে থিম বদলান।
+        </div>
+      </div>
+      <button class="btn btn-sm" onclick="dismissOnboard()">বুঝেছি</button>
+    </div>
+  ` : "";
+
+  const np = S.notepad;
+  const npUpdated = np.updated
+    ? new Date(np.updated).toLocaleString(appLocale(), { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })
+    : "এখনো সেভ হয়নি";
+  const words = (np.content || "").trim() ? (np.content.trim().split(/\s+/).length) : 0;
+  const chars = (np.content || "").length;
+
+  c.innerHTML = `
+    ${onboard}
+    <div class="greet">
+      <h1>${greet}, ${esc(S.profile.name||"বন্ধু")} 👋</h1>
+      <p>${new Date().toLocaleDateString(appLocale(),{weekday:"long",day:"numeric",month:"long",year:"numeric"})}</p>
+    </div>
+
+    <div class="grid g4" style="margin-bottom:22px">
+      <div class="stat-card">
+        <div class="stat-label">ওপেন টাস্ক</div>
+        <div class="stat-num">${openT}</div>
+        <div class="stat-sub">${doneT} সম্পন্ন</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">অ্যাকটিভ প্রজেক্ট</div>
+        <div class="stat-num">${actP}</div>
+        <div class="stat-sub">${S.projects.length} মোট</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">বেস্ট স্ট্রিক</div>
+        <div class="stat-num">${streak}</div>
+        <div class="stat-sub">দিন</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">ব্যালেন্স</div>
+        <div class="stat-num" style="font-size:22px">${S.settings.currency}${fmtMoney(bal)}</div>
+        <div class="stat-sub">মোট</div>
+      </div>
+    </div>
+
+    <div class="home-duo">
+      <!-- NOTEPAD -->
+      <div class="home-panel">
+        <div class="home-panel-head">
+          <div class="ph-ico" style="background:var(--accent-soft)">📝</div>
+          <div>
+            <div class="ph-title">নোটপ্যাড</div>
+            <div class="ph-sub">দ্রুত নোট · অটো-সেভ</div>
+          </div>
+          <div class="ph-right">
+            <button class="btn btn-sm" onclick="clearNotepad()" title="মুছুন">🗑</button>
+          </div>
+        </div>
+        <div class="np-body">
+          <textarea class="np-ta" id="homeNotepad" placeholder="আজকের চিন্তা, আইডিয়া, মিটিং নোট… এখানে লিখুন">${esc(np.content||"")}</textarea>
+        </div>
+        <div class="np-foot">
+          <span id="npMeta">${words} শব্দ · ${chars} অক্ষর</span>
+          <span id="npSaveHint" class="np-save-ok">✓ ${esc(npUpdated)}</span>
+        </div>
+      </div>
+
+      <!-- TODO -->
+      <div class="home-panel">
+        <div class="home-panel-head">
+          <div class="ph-ico" style="background:var(--green-soft)">✅</div>
+          <div>
+            <div class="ph-title">টু-ডু লিস্ট</div>
+            <div class="ph-sub">${openT} চলমান · ${doneT} সম্পন্ন</div>
+          </div>
+          <div class="ph-right">
+            <div class="todo-filters">
+              <button class="${window._todoFilter==='open'?'on':''}" onclick="window._todoFilter='open';render()">চলমান</button>
+              <button class="${window._todoFilter==='done'?'on':''}" onclick="window._todoFilter='done';render()">সম্পন্ন</button>
+              <button class="${window._todoFilter==='all'?'on':''}" onclick="window._todoFilter='all';render()">সব</button>
+            </div>
+            <button class="btn btn-sm" onclick="go('tasks')">সব →</button>
+          </div>
+        </div>
+        <div class="todo-quick">
+          <input id="homeTodoInput" placeholder="নতুন কাজ লিখে Enter…" onkeydown="if(event.key==='Enter'){event.preventDefault();quickAddTodo()}">
+          <button class="btn btn-primary btn-sm" onclick="quickAddTodo()">যোগ</button>
+        </div>
+        <div class="todo-list-home" id="homeTodoList">
+          ${homeTodoListHTML()}
+        </div>
+      </div>
+    </div>
+
+    <div class="grid g2">
+      <div class="card">
+        <div class="section-head"><h3>আজকের টাস্ক</h3><button class="btn btn-sm" onclick="go('tasks')">সব দেখুন</button></div>
+        ${todayTasks()}
+      </div>
+      <div class="card">
+        <div class="section-head"><h3>সাম্প্রতিক পেজ</h3><button class="btn btn-sm" onclick="go('work')">ওয়ার্কস্পেস</button></div>
+        ${S.pages.slice(-5).reverse().map(p => `
+          <div class="ws-tree-item" onclick="S.currentPage='${p.id}';go('work')">📄 ${esc(p.title||"শিরোনামহীন")}</div>
+        `).join("") || '<div class="empty" style="padding:24px"><p>কোনো পেজ নেই</p></div>'}
+      </div>
+    </div>
+
+    <div class="grid g2" style="margin-top:16px">
+      <div class="card">
+        <div class="section-head"><h3>আসন্ন ইভেন্ট</h3><button class="btn btn-sm" onclick="go('cal')">ক্যালেন্ডার</button></div>
+        ${dashEvents()}
+      </div>
+      <div class="card">
+        <div class="section-head"><h3>আজকের হ্যাবিট</h3><button class="btn btn-sm" onclick="go('habits')">সব</button></div>
+        ${dashHabits()}
+      </div>
+    </div>
+
+    ${S.profile.goals ? `
+      <div class="card" style="margin-top:16px">
+        <div class="section-head"><h3>🎯 আমার গোল</h3></div>
+        <p style="white-space:pre-wrap;color:var(--text2);font-size:14px;line-height:1.6">${esc(S.profile.goals)}</p>
+      </div>
+    ` : ""}
+  `;
+
+  // Bind notepad autosave
+  const ta = document.getElementById("homeNotepad");
+  if (ta) {
+    let tmr = null;
+    ta.addEventListener("input", () => {
+      if (!S.notepad) S.notepad = { content: "", updated: null };
+      S.notepad.content = ta.value;
+      const w = ta.value.trim() ? ta.value.trim().split(/\s+/).length : 0;
+      const meta = document.getElementById("npMeta");
+      const hint = document.getElementById("npSaveHint");
+      if (meta) meta.textContent = w + " শব্দ · " + ta.value.length + " অক্ষর";
+      if (hint) { hint.textContent = "সেভ হচ্ছে..."; hint.className = ""; }
+      clearTimeout(tmr);
+      tmr = setTimeout(() => {
+        S.notepad.updated = Date.now();
+        save();
+        if (hint) {
+          hint.textContent = "✓ সেভ হয়েছে";
+          hint.className = "np-save-ok";
+        }
+      }, 450);
+    });
+  }
+  const tin = document.getElementById("homeTodoInput");
+  if (tin) setTimeout(() => {}, 0);
+}
+function homeTodoListHTML() {
+  const f = window._todoFilter || "open";
+  let list = S.tasks.slice();
+  if (f === "open") list = list.filter(t => !t.done);
+  else if (f === "done") list = list.filter(t => t.done);
+  list.sort((a, b) => {
+    if (!!a.done !== !!b.done) return a.done ? 1 : -1;
+    const rank = { high: 0, med: 1, low: 2, "": 3 };
+    return (rank[a.pri || ""] ?? 3) - (rank[b.pri || ""] ?? 3);
+  });
+  list = list.slice(0, 12);
+  if (!list.length) {
+    return `<div class="empty" style="padding:36px 16px"><p style="font-size:14px">${f === "done" ? "সম্পন্ন কাজ নেই" : "কোনো কাজ নেই — উপরে যোগ করুন"}</p></div>`;
+  }
+  const td = today();
+  return list.map(t => {
+    const overdue = !t.done && t.due && t.due < td;
+    const isToday = t.due === td;
+    return `
+      <div class="todo-item-h ${t.done ? "done" : ""}">
+        <input type="checkbox" ${t.done ? "checked" : ""} onchange="togTask('${t.id}')">
+        <div style="flex:1;min-width:0">
+          <div class="todo-t">${esc(t.title)}</div>
+          <div class="todo-m">
+            ${t.pri ? `<span><span class="pri-dot ${t.pri}"></span> ${t.pri}</span>` : ""}
+            ${t.due ? `<span style="color:${overdue ? "var(--red)" : isToday ? "var(--accent)" : "var(--text3)"}">📅 ${t.due}${overdue ? " · ওভারডিউ" : isToday ? " · আজ" : ""}</span>` : ""}
+            ${t.project || t.projectId ? `<span>📁 ${esc(t.project || projectName(t.projectId) || "")}</span>` : ""}
+          </div>
+        </div>
+        <div class="todo-acts">
+          <button class="btn btn-sm" onclick="openTask('${t.id}')" title="এডিট">✎</button>
+          <button class="btn btn-sm btn-danger" onclick="delTask('${t.id}')" title="মুছুন">✕</button>
+        </div>
+      </div>`;
+  }).join("");
+}
+function quickAddTodo() {
+  const inp = document.getElementById("homeTodoInput");
+  if (!inp) return;
+  const title = inp.value.trim();
+  if (!title) return toast("কাজের নাম লিখুন", "err");
+  S.tasks.push({
+    id: uid(), title, pri: "", due: today(), projectId: "", project: "", note: "", done: false, created: Date.now()
+  });
+  inp.value = "";
+  save();
+  toast("টাস্ক যোগ হয়েছে", "ok");
+  if (view === "dash") render();
+  else go("dash");
+}
+function clearNotepad() {
+  appConfirm("নোটপ্যাড খালি করবেন?", () => {
+    S.notepad = { content: "", updated: Date.now() };
+    save();
+    toast("নোটপ্যাড খালি", "info");
+    if (view === "dash") render();
+  });
+}
+function todayTasks() {
+  const td = today();
+  const list = S.tasks.filter(t => !t.done && (!t.due || t.due === td || t.due < td)).slice(0,5);
+  if (!list.length) return '<div class="empty" style="padding:28px"><p>আজকের কোনো টাস্ক নেই 🎉</p></div>';
+  return list.map(t => `
+    <div class="item ${t.done?"done":""}" style="margin-bottom:6px;padding:10px 12px">
+      <input type="checkbox" class="item-check" ${t.done?"checked":""} onchange="togTask('${t.id}')">
+      <div class="item-body"><div class="item-title">${esc(t.title)}</div></div>
+      ${t.pri?`<span class="badge b-${t.pri==="high"?"red":t.pri==="med"?"orange":"green"}">${t.pri}</span>`:""}
+    </div>
+  `).join("");
+}
+function dashEvents() {
+  const up = S.events.filter(e => e.date >= today()).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,5);
+  if (!up.length) return '<div class="empty" style="padding:20px"><p>কোনো আসন্ন ইভেন্ট নেই</p></div>';
+  return up.map(e => `
+    <div class="item" style="padding:10px 12px;margin-bottom:4px">
+      <div class="item-body">
+        <div class="item-title">${esc(e.title)}</div>
+        <div class="item-meta">${e.date} ${e.time||""}</div>
+      </div>
+    </div>
+  `).join("");
+}
+function dashHabits() {
+  if (!S.habits.length) return '<div class="empty" style="padding:20px"><p>হ্যাবিট নেই</p></div>';
+  const td = today();
+  return S.habits.map(h => {
+    const on = (h.logs||[]).includes(td);
+    return `
+      <div class="item" style="padding:10px 12px;margin-bottom:4px;cursor:pointer" onclick="togHabit('${h.id}','${td}')">
+        <div class="item-body"><div class="item-title">${on?"✅":"⬜"} ${esc(h.name)}</div></div>
+        <span class="badge b-green">${streakOf(h)}d</span>
+      </div>
+    `;
+  }).join("");
+}
+function bestStreak() {
+  let b = 0;
+  S.habits.forEach(h => { const s = streakOf(h); if (s>b) b=s; });
+  return b;
+}
+function dismissOnboard() {
+  S.settings.onboardDone = true;
+  save(); render();
+}
+
+/* ============================================================
+   WORKSPACE — Notion-like
+   ============================================================ */
+function rWork(c, tr) {
+  ensureFolders();
+  tr.innerHTML = `
+    <button class="btn btn-sm" onclick="openFolderModal()">+ ফোল্ডার</button>
+    <button class="btn btn-primary btn-sm" onclick="createPage()">+ নতুন পেজ</button>
+  `;
+  if (!S.pages.length) {
+    c.innerHTML = `<div class="empty" style="padding:72px 20px"><div class="big">📂</div><p style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">ওয়ার্কস্পেস খালি</p><p style="margin-bottom:20px">নোট, প্ল্যান, রিসার্চ — সব এক জায়গায় রাখুন</p><button class="btn btn-primary btn-lg" onclick="createPage()">প্রথম পেজ তৈরি করুন</button></div>`;
+    return;
+  }
+  const q = (window._wsSearch || "").trim().toLowerCase();
+  let visible = workFolderFilter === "all" ? S.pages.slice() : S.pages.filter(p => p.folderId === workFolderFilter);
+  if (q) visible = visible.filter(p => (p.title || "").toLowerCase().includes(q));
+  if (!S.currentPage || !S.pages.find(p => p.id === S.currentPage)) {
+    S.currentPage = (visible[0] || S.pages[0]).id;
+  }
+  const page = S.pages.find(p => p.id === S.currentPage) || S.pages[0];
+  const blockCount = (page.blocks || []).length;
+
+  // Sidebar tree
+  let treeHtml = `
+    <div class="ws-tree-head">
+      <h4>পেজসমূহ</h4>
+      <span style="font-size:11px;color:var(--text3)">${S.pages.length}</span>
+    </div>
+    <input class="ws-search" id="wsSearch" placeholder="পেজ খুঁজুন..." value="${esc(window._wsSearch||"")}" oninput="window._wsSearch=this.value;render()">
+    <div class="ws-tree-item ${workFolderFilter==='all'&&!q?'active':''}" onclick="workFolderFilter='all';window._wsSearch='';render()">
+      <span class="pg-ico">📑</span><span class="pg-title">সব পেজ</span>
+    </div>
+  `;
+
+  S.folders.forEach(f => {
+    const pagesIn = S.pages.filter(p => p.folderId === f.id);
+    const shown = q ? pagesIn.filter(p => (p.title || "").toLowerCase().includes(q)) : pagesIn;
+    treeHtml += `
+      <div class="ws-folder-head">
+        <span>📂 ${esc(f.name)}</span>
+        <span style="color:var(--text3);font-weight:500">(${pagesIn.length})</span>
+        <span class="fd-acts">
+          <button title="রিনেম" onclick="event.stopPropagation();renameFolder('${f.id}')">✎</button>
+          <button title="মুছুন" onclick="event.stopPropagation();delFolder('${f.id}')">✕</button>
+        </span>
+      </div>`;
+    if (!shown.length) {
+      treeHtml += `<div style="padding:6px 14px;font-size:12px;color:var(--text3)">${q ? "মিল নেই" : "খালি"}</div>`;
+    }
+    shown.forEach(p => {
+      treeHtml += `
+        <div class="ws-tree-item ${p.id===page.id?"active":""}" onclick="S.currentPage='${p.id}';workFolderFilter='${f.id}';render()">
+          <span class="pg-ico">📄</span>
+          <span class="pg-title">${esc(p.title || "শিরোনামহীন")}</span>
+        </div>`;
+    });
+  });
+
+  // orphans
+  const orphans = S.pages.filter(p => !S.folders.find(f => f.id === p.folderId));
+  const orphanShown = q ? orphans.filter(p => (p.title || "").toLowerCase().includes(q)) : orphans;
+  if (orphanShown.length) {
+    treeHtml += `<div class="ws-folder-head"><span>📄 অন্যান্য</span></div>`;
+    orphanShown.forEach(p => {
+      treeHtml += `
+        <div class="ws-tree-item ${p.id===page.id?"active":""}" onclick="S.currentPage='${p.id}';render()">
+          <span class="pg-ico">📄</span>
+          <span class="pg-title">${esc(p.title || "শিরোনামহীন")}</span>
+        </div>`;
+    });
+  }
+
+  const folderOpts = S.folders.map(f =>
+    `<option value="${f.id}" ${page.folderId===f.id?"selected":""}>${esc(f.name)}</option>`
+  ).join("");
+
+  const created = page.created ? new Date(page.created).toLocaleDateString(appLocale(), { day: "numeric", month: "short" }) : "";
+
+  c.innerHTML = `
+    <div class="ws-layout">
+      <div class="ws-tree">${treeHtml}</div>
+      <div class="ws-editor">
+        <div class="ws-editor-top">
+          <input class="ws-title-input" value="${esc(page.title||"")}" placeholder="শিরোনামহীন পেজ" oninput="pageTitle(this.value)">
+        </div>
+        <div class="ws-meta-row">
+          <select class="select" onchange="movePageFolder(this.value)" title="ফোল্ডার">
+            ${folderOpts}
+          </select>
+          <button class="btn btn-sm btn-danger" onclick="delPage()">পেজ মুছুন</button>
+          <span class="ws-meta-hint">${blockCount} ব্লক${created ? " · " + created : ""}</span>
+        </div>
+        <div id="blocks"></div>
+        ${(page.blocks && page.blocks.length) ? "" : `
+          <div class="ws-empty-blocks">
+            <p style="font-size:28px;margin-bottom:10px;opacity:.5">✍️</p>
+            <p>এই পেজ এখনো খালি</p>
+            <p style="font-size:12.5px">নিচের টুল থেকে টেক্সট, টু-ডু, টেবিল বা মিডিয়া যোগ করুন</p>
+          </div>
+        `}
+        <div class="block-tools">
+          <div class="tools-label">ব্লক যোগ করুন</div>
+          <button class="btn btn-sm" onclick="addBlock('text')">📝 টেক্সট</button>
+          <button class="btn btn-sm" onclick="addBlock('heading')">🔤 হেডিং</button>
+          <button class="btn btn-sm" onclick="addBlock('todo')">✅ টু-ডু</button>
+          <button class="btn btn-sm" onclick="addBlock('callout')">💡 নোট</button>
+          <button class="btn btn-sm" onclick="addBlock('code')">💻 কোড</button>
+          <button class="btn btn-sm" onclick="addBlock('table')">📊 টেবিল</button>
+          <button class="btn btn-sm" onclick="addBlock('divider')">➖ লাইন</button>
+          <button class="btn btn-sm" onclick="addBlock('image')">🖼️ ইমেজ</button>
+          <button class="btn btn-sm" onclick="addBlock('video')">🎬 ভিডিও</button>
+          <button class="btn btn-sm" onclick="addBlock('audio')">🎵 অডিও</button>
+          <button class="btn btn-sm" onclick="addBlock('file')">📎 ফাইল</button>
+          <button class="btn btn-sm" onclick="addBlock('link')">🔗 লিংক</button>
+        </div>
+      </div>
+    </div>
+  `;
+  drawBlocks(page.blocks || []);
+  // restore search focus cursor at end if typing
+  const sEl = document.getElementById("wsSearch");
+  if (sEl && window._wsSearch) {
+    sEl.focus();
+    const len = sEl.value.length;
+    try { sEl.setSelectionRange(len, len); } catch(e) {}
+  }
+}
+function createPage() {
+  ensureFolders();
+  const id = uid();
+  const folderId = workFolderFilter !== "all" ? workFolderFilter : (S.folders[0]?.id || "f_default");
+  S.pages.push({ id, title: "নতুন পেজ", blocks: [], folderId, created: Date.now() });
+  S.currentPage = id;
+  save(); render();
+  toast("নতুন পেজ তৈরি হয়েছে", "ok");
+}
+function pageTitle(v) {
+  const p = S.pages.find(x => x.id === S.currentPage);
+  if (p) { p.title = v; save(); }
+}
+function movePageFolder(fid) {
+  const p = S.pages.find(x => x.id === S.currentPage);
+  if (p) { p.folderId = fid; save(); render(); toast("ফোল্ডার আপডেট", "ok"); }
+}
+function openFolderModal() {
+  showModal(`
+    <h3>নতুন ফোল্ডার</h3>
+    <div class="form-group"><label>নাম</label><input class="input" id="fdN" placeholder="যেমন: পড়ালেখা, কাজ"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">বাতিল</button>
+      <button class="btn btn-primary" onclick="saveFolder()">সেভ</button>
+    </div>
+  `);
+}
+function saveFolder() {
+  const name = document.getElementById("fdN").value.trim();
+  if (!name) return toast("নাম দিন", "err");
+  S.folders.push({ id: uid(), name });
+  save(); closeModal(); render();
+  toast("ফোল্ডার যোগ হয়েছে", "ok");
+}
+function delPage() {
+  appConfirm("পেজ মুছে ফেলবেন?", () => {
+    S.pages = S.pages.filter(p => p.id !== S.currentPage);
+    S.currentPage = S.pages[0]?.id || null;
+    save(); render();
+    toast("পেজ মুছে ফেলা হয়েছে", "info");
+  });
+}
+function renameFolder(id) {
+  const f = S.folders.find(x => x.id === id);
+  if (!f) return;
+  showModal(`
+    <h3>ফোল্ডার রিনেম</h3>
+    <div class="form-group"><label>নাম</label><input class="input" id="fdN" value="${esc(f.name)}"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">বাতিল</button>
+      <button class="btn btn-primary" onclick="saveFolderRename('${id}')">সেভ</button>
+    </div>
+  `);
+}
+function saveFolderRename(id) {
+  const name = document.getElementById("fdN").value.trim();
+  if (!name) return toast("নাম দিন", "err");
+  const f = S.folders.find(x => x.id === id);
+  if (f) f.name = name;
+  save(); closeModal(); render();
+  toast("ফোল্ডার আপডেট", "ok");
+}
+function delFolder(id) {
+  if (S.folders.length <= 1) return toast("কমপক্ষে একটা ফোল্ডার থাকতে হবে", "err");
+  appConfirm("ফোল্ডার মুছবেন? পেজগুলো 'সাধারণ' এ চলে যাবে।", () => {
+    const fallback = S.folders.find(f => f.id !== id)?.id || "f_default";
+    S.pages.forEach(p => { if (p.folderId === id) p.folderId = fallback; });
+    S.folders = S.folders.filter(f => f.id !== id);
+    if (workFolderFilter === id) workFolderFilter = "all";
+    save(); render();
+    toast("ফোল্ডার মুছে ফেলা হয়েছে", "info");
+  });
+}
+
+function drawBlocks(blocks) {
+  const el = document.getElementById("blocks");
+  if (!el) return;
+  el.innerHTML = "";
+  blocks.forEach((b, i) => el.appendChild(makeBlock(b, i)));
+}
+
+function makeBlock(b, i) {
+  const w = document.createElement("div");
+  w.className = "block";
+  const labels = { text:"টেক্সট", heading:"হেডিং", todo:"টু-ডু", table:"টেবিল", image:"ইমেজ", video:"ভিডিও", audio:"অডিও", file:"ফাইল", link:"লিংক", callout:"নোট", code:"কোড", divider:"ডিভাইডার" };
+  // Drop target on whole block; drag only from handle
+  w.ondragover = e => { e.preventDefault(); w.classList.add("drag-over"); };
+  w.ondragleave = () => w.classList.remove("drag-over");
+  w.ondrop = e => {
+    e.preventDefault();
+    w.classList.remove("drag-over");
+    if (dragBlockIdx === null || dragBlockIdx === i) return;
+    const p = S.pages.find(x => x.id === S.currentPage);
+    if (!p || !p.blocks) return;
+    const [moved] = p.blocks.splice(dragBlockIdx, 1);
+    p.blocks.splice(i, 0, moved);
+    dragBlockIdx = null;
+    drawBlocks(p.blocks); save();
+  };
+
+  const bar = document.createElement("div");
+  bar.className = "block-bar";
+  const handle = document.createElement("span");
+  handle.className = "block-label";
+  handle.style.cssText = "cursor:grab;user-select:none";
+  handle.draggable = true;
+  handle.textContent = "⠿ " + (labels[b.type] || b.type);
+  handle.title = "টেনে সরান";
+  handle.ondragstart = e => {
+    dragBlockIdx = i;
+    w.classList.add("dragging");
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", String(i));
+  };
+  handle.ondragend = () => {
+    dragBlockIdx = null;
+    w.classList.remove("dragging");
+    document.querySelectorAll(".block.drag-over, .block-wrap.drag-over").forEach(el => el.classList.remove("drag-over"));
+  };
+  bar.appendChild(handle);
+  const acts = document.createElement("div");
+  acts.className = "block-acts";
+  const up = document.createElement("button");
+  up.className = "block-x"; up.textContent = "↑"; up.title = "উপরে";
+  up.onclick = () => moveBlock(i, -1);
+  const dn = document.createElement("button");
+  dn.className = "block-x"; dn.textContent = "↓"; dn.title = "নিচে";
+  dn.onclick = () => moveBlock(i, 1);
+  const x = document.createElement("button");
+  x.className = "block-x danger"; x.textContent = "✕"; x.title = "মুছুন";
+  x.onclick = () => {
+    const p = S.pages.find(x => x.id === S.currentPage);
+    p.blocks.splice(i,1); drawBlocks(p.blocks); save();
+  };
+  acts.append(up, dn, x);
+  bar.appendChild(acts);
+  w.appendChild(bar);
+
+  if (b.type === "text" || b.type === "callout" || b.type === "code") {
+    const ta = document.createElement("textarea");
+    ta.className = "block-ta";
+    if (b.type === "callout") {
+      ta.style.borderLeft = "3px solid var(--accent)";
+      ta.style.paddingLeft = "12px";
+      ta.style.background = "var(--accent-soft)";
+      ta.style.borderRadius = "0 8px 8px 0";
+      ta.style.padding = "10px 12px";
+    }
+    if (b.type === "code") {
+      ta.style.fontFamily = "ui-monospace, SFMono-Regular, Menlo, monospace";
+      ta.style.fontSize = "13px";
+      ta.style.background = "var(--bg2)";
+      ta.style.borderRadius = "8px";
+      ta.style.padding = "12px";
+      ta.style.border = "1px solid var(--border)";
+    }
+    ta.value = b.content || "";
+    ta.placeholder = b.type === "code" ? "// কোড লিখুন..." : (b.type === "callout" ? "গুরুত্বপূর্ণ নোট..." : "লিখতে শুরু করুন...");
+    ta.oninput = () => { b.content = ta.value; save(); };
+    // auto-grow
+    ta.style.overflow = "hidden";
+    const grow = () => { ta.style.height = "auto"; ta.style.height = Math.max(56, ta.scrollHeight) + "px"; };
+    ta.addEventListener("input", grow);
+    setTimeout(grow, 0);
+    w.appendChild(ta);
+  }
+  if (b.type === "heading") {
+    const inp = document.createElement("input");
+    inp.className = "input";
+    inp.style.cssText = "font-size:22px;font-weight:700;border:none;background:transparent;padding:4px 0;box-shadow:none";
+    inp.value = b.content || "";
+    inp.placeholder = "হেডিং...";
+    inp.oninput = () => { b.content = inp.value; save(); };
+    w.appendChild(inp);
+  }
+  if (b.type === "todo") {
+    const list = document.createElement("div");
+    (b.items || []).forEach((it, j) => {
+      const row = document.createElement("div");
+      row.className = "todo-line" + (it.done ? " done" : "");
+      const cb = document.createElement("input");
+      cb.type = "checkbox"; cb.checked = !!it.done;
+      cb.onchange = () => { it.done = cb.checked; row.classList.toggle("done", it.done); save(); };
+      const tx = document.createElement("input");
+      tx.type = "text"; tx.value = it.text || ""; tx.placeholder = "কাজ...";
+      tx.oninput = () => { it.text = tx.value; save(); };
+      const rm = document.createElement("button");
+      rm.textContent = "✕"; rm.style.cssText = "background:none;border:none;color:var(--text3);cursor:pointer";
+      rm.onclick = () => { b.items.splice(j,1); drawBlocks(S.pages.find(x=>x.id===S.currentPage).blocks); save(); };
+      row.append(cb, tx, rm);
+      list.appendChild(row);
+    });
+    w.appendChild(list);
+    const add = document.createElement("button");
+    add.className = "add-line"; add.textContent = "+ নতুন কাজ";
+    add.onclick = () => {
+      b.items = b.items || [];
+      b.items.push({ text:"", done:false });
+      drawBlocks(S.pages.find(x=>x.id===S.currentPage).blocks); save();
+    };
+    w.appendChild(add);
+  }
+  if (b.type === "table") {
+    b.rows = b.rows || [["কলাম ১","কলাম ২"],["",""]];
+    const tw = document.createElement("div"); tw.className = "tbl-wrap";
+    const tb = document.createElement("table"); tb.className = "mini";
+    b.rows.forEach((row, ri) => {
+      const tr = document.createElement("tr");
+      row.forEach((cell, ci) => {
+        const td = document.createElement(ri===0?"th":"td");
+        const inp = document.createElement("input");
+        inp.value = cell;
+        inp.oninput = () => { b.rows[ri][ci] = inp.value; save(); };
+        td.appendChild(inp); tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+    tw.appendChild(tb); w.appendChild(tw);
+    const acts = document.createElement("div");
+    acts.style.cssText = "display:flex;gap:8px;margin-top:8px";
+    acts.innerHTML = `
+      <button class="btn btn-sm" onclick="(function(){const p=S.pages.find(x=>x.id===S.currentPage);const bl=p.blocks[${i}];bl.rows.push(new Array(bl.rows[0].length).fill(''));drawBlocks(p.blocks);save()})()">+ সারি</button>
+      <button class="btn btn-sm" onclick="(function(){const p=S.pages.find(x=>x.id===S.currentPage);const bl=p.blocks[${i}];bl.rows.forEach((r,ri)=>r.push(ri===0?'নতুন':''));drawBlocks(p.blocks);save()})()">+ কলাম</button>
+    `;
+    w.appendChild(acts);
+  }
+  if (b.type === "image") {
+    const inp = document.createElement("input");
+    inp.className = "input"; inp.placeholder = "ইমেজ URL...";
+    inp.value = b.url || "";
+    inp.oninput = () => { b.url = inp.value; save(); drawBlocks(S.pages.find(x=>x.id===S.currentPage).blocks); };
+    w.appendChild(inp);
+    const fi = document.createElement("input");
+    fi.type = "file"; fi.accept = "image/*"; fi.style.marginTop = "8px";
+    fi.onchange = async e => {
+      const f = e.target.files[0]; if (!f) return;
+      document.getElementById("saveDot").textContent = "আপলোড...";
+      let url = await uploadToCloud(f, "workspace");
+      if (!url) {
+        if (f.size > 1.8e6) return toast("১.৮MB এর ছোট ইমেজ দিন অথবা Google লগইন করুন", "err");
+        try { url = await readAsDataURL(f); } catch { return toast("ফাইল পড়া যায়নি", "err"); }
+      }
+      b.url = url; save();
+      drawBlocks(S.pages.find(x=>x.id===S.currentPage).blocks);
+      toast("ইমেজ যোগ হয়েছে", "ok");
+    };
+    w.appendChild(fi);
+    if (b.url) {
+      const img = document.createElement("img");
+      img.src = b.url; img.className = "media-img";
+      img.onerror = () => img.style.display = "none";
+      w.appendChild(img);
+    }
+  }
+  if (b.type === "video") {
+    const inp = document.createElement("input");
+    inp.className = "input"; inp.placeholder = "YouTube / ভিডিও URL...";
+    inp.value = b.url || "";
+    inp.oninput = () => { b.url = inp.value; save(); drawBlocks(S.pages.find(x=>x.id===S.currentPage).blocks); };
+    w.appendChild(inp);
+    const fi = document.createElement("input");
+    fi.type = "file"; fi.accept = "video/*"; fi.style.marginTop = "8px";
+    fi.onchange = async e => {
+      const f = e.target.files[0]; if (!f) return;
+      document.getElementById("saveDot").textContent = "আপলোড...";
+      let url = await uploadToCloud(f, "workspace");
+      if (!url) {
+        if (f.size > 1.8e6) return toast("ক্লাউড ছাড়া বড় ভিডিও রাখা যায় না — Google লগইন করুন", "err");
+        try { url = await readAsDataURL(f); } catch { return toast("ফাইল পড়া যায়নি", "err"); }
+      }
+      b.url = url; save();
+      drawBlocks(S.pages.find(x=>x.id===S.currentPage).blocks);
+      toast("ভিডিও যোগ হয়েছে", "ok");
+    };
+    w.appendChild(fi);
+    if (b.url) {
+      let src = b.url;
+      const yt = b.url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
+      if (yt) {
+        src = `https://www.youtube.com/embed/${yt[1]}`;
+        const ifr = document.createElement("iframe");
+        ifr.src = src; ifr.className = "media-vid";
+        ifr.allow = "accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture";
+        ifr.allowFullscreen = true;
+        w.appendChild(ifr);
+      } else {
+        const vid = document.createElement("video");
+        vid.src = b.url; vid.controls = true; vid.className = "media-vid";
+        w.appendChild(vid);
+      }
+    }
+  }
+  if (b.type === "audio") {
+    const inp = document.createElement("input");
+    inp.className = "input"; inp.placeholder = "অডিও URL...";
+    inp.value = b.url || "";
+    inp.oninput = () => { b.url = inp.value; save(); drawBlocks(S.pages.find(x=>x.id===S.currentPage).blocks); };
+    w.appendChild(inp);
+    const fi = document.createElement("input");
+    fi.type = "file"; fi.accept = "audio/*"; fi.style.marginTop = "8px";
+    fi.onchange = async e => {
+      const f = e.target.files[0]; if (!f) return;
+      document.getElementById("saveDot").textContent = "আপলোড...";
+      let url = await uploadToCloud(f, "workspace");
+      if (!url) {
+        if (f.size > 1.8e6) return toast("ক্লাউড ছাড়া বড় অডিও রাখা যায় না — Google লগইন করুন", "err");
+        try { url = await readAsDataURL(f); } catch { return toast("ফাইল পড়া যায়নি", "err"); }
+      }
+      b.url = url; save();
+      drawBlocks(S.pages.find(x=>x.id===S.currentPage).blocks);
+      toast("অডিও যোগ হয়েছে", "ok");
+    };
+    w.appendChild(fi);
+    if (b.url) {
+      const au = document.createElement("audio");
+      au.controls = true; au.src = b.url; au.style.width = "100%"; au.style.marginTop = "8px";
+      w.appendChild(au);
+    }
+  }
+  if (b.type === "file" || b.type === "link") {
+    const n = document.createElement("input");
+    n.className = "input"; n.placeholder = b.type==="link" ? "লিংকের নাম" : "ফাইলের নাম (PDF ইত্যাদি)";
+    n.value = b.name || ""; n.oninput = () => { b.name = n.value; save(); };
+    w.appendChild(n);
+    const u = document.createElement("input");
+    u.className = "input"; u.style.marginTop = "6px";
+    u.placeholder = "URL..."; u.value = b.url || "";
+    u.oninput = () => { b.url = u.value; save(); };
+    w.appendChild(u);
+    if (b.url) {
+      const a = document.createElement("a");
+      a.href = b.url; a.target = "_blank"; a.className = "file-link";
+      a.textContent = (b.type==="link"?"🔗 ":"📥 ") + (b.name || "খুলুন");
+      w.appendChild(a);
+    }
+  }
+  if (b.type === "divider") {
+    const hr = document.createElement("hr");
+    hr.style.cssText = "border:none;border-top:1px solid var(--border);margin:6px 0";
+    w.appendChild(hr);
+  }
+  return w;
+}
+
+function addBlock(type) {
+  const p = S.pages.find(x => x.id === S.currentPage);
+  if (!p) return;
+  p.blocks = p.blocks || [];
+  const b = { type };
+  if (["text","heading","callout","code"].includes(type)) b.content = "";
+  if (type === "todo") b.items = [];
+  if (type === "table") b.rows = [["কলাম ১","কলাম ২"],["",""]];
+  if (["image","video","audio","file","link"].includes(type)) b.url = "";
+  if (["file","link"].includes(type)) b.name = "";
+  p.blocks.push(b);
+  drawBlocks(p.blocks); save();
+}
+function moveBlock(idx, dir) {
+  const p = S.pages.find(x => x.id === S.currentPage);
+  if (!p || !p.blocks) return;
+  const j = idx + dir;
+  if (j < 0 || j >= p.blocks.length) return;
+  const tmp = p.blocks[idx];
+  p.blocks[idx] = p.blocks[j];
+  p.blocks[j] = tmp;
+  drawBlocks(p.blocks); save();
+}
+
+/* ============================================================
+   TASKS
+   ============================================================ */
+function rTasks(c, tr) {
+  tr.innerHTML = `<button class="btn btn-primary btn-sm" onclick="openTask()">+ টাস্ক</button>`;
+  let list = S.tasks.slice();
+  if (taskFilter.status === "open") list = list.filter(t => !t.done);
+  else if (taskFilter.status === "done") list = list.filter(t => t.done);
+  if (taskFilter.sort === "due") list.sort((a,b) => (a.due||"9999").localeCompare(b.due||"9999"));
+  else if (taskFilter.sort === "pri") {
+    const rank = { high: 0, med: 1, low: 2, "": 3 };
+    list.sort((a,b) => (rank[a.pri||""]??3) - (rank[b.pri||""]??3));
+  } else if (taskFilter.sort === "alpha") list.sort((a,b) => (a.title||"").localeCompare(b.title||"", "bn"));
+
+  const overdue = list.filter(t => !t.done && t.due && t.due < today());
+  const todayL = list.filter(t => !t.done && t.due === today());
+  const later = list.filter(t => !t.done && (!t.due || t.due > today()));
+  const doneL = list.filter(t => t.done);
+
+  c.innerHTML = `
+    <div class="filter-row">
+      <select class="select" style="width:auto" onchange="taskFilter.status=this.value;render()">
+        <option value="open" ${taskFilter.status==="open"?"selected":""}>চলমান</option>
+        <option value="done" ${taskFilter.status==="done"?"selected":""}>সম্পন্ন</option>
+        <option value="all" ${taskFilter.status==="all"?"selected":""}>সব</option>
+      </select>
+      <select class="select" style="width:auto" onchange="taskFilter.sort=this.value;render()">
+        <option value="due" ${taskFilter.sort==="due"?"selected":""}>ডেডলাইন</option>
+        <option value="pri" ${taskFilter.sort==="pri"?"selected":""}>প্রায়োরিটি</option>
+        <option value="alpha" ${taskFilter.sort==="alpha"?"selected":""}>নাম</option>
+      </select>
+    </div>
+    ${taskFilter.status !== "done" ? `
+      ${overdue.length ? `<div class="section-head"><h3 style="color:var(--red)">ওভারডিউ (${overdue.length})</h3></div>${overdue.map(taskHTML).join("")}` : ""}
+      ${todayL.length ? `<div class="section-head"><h3>আজ (${todayL.length})</h3></div>${todayL.map(taskHTML).join("")}` : ""}
+      ${later.length ? `<div class="section-head"><h3>পরে (${later.length})</h3></div>${later.map(taskHTML).join("")}` : ""}
+      ${!overdue.length && !todayL.length && !later.length && taskFilter.status==="open" ? '<div class="empty" style="padding:30px"><p>কোনো চলমান টাস্ক নেই</p></div>' : ""}
+    ` : ""}
+    ${(taskFilter.status === "done" || taskFilter.status === "all") && doneL.length ? `
+      <div class="section-head" style="margin-top:12px"><h3>সম্পন্ন (${doneL.length})</h3></div>
+      ${doneL.map(taskHTML).join("")}
+    ` : ""}
+  `;
+}
+function projectName(id) {
+  const p = S.projects.find(x => x.id === id);
+  return p ? p.name : "";
+}
+function taskHTML(t) {
+  const pn = t.projectId ? projectName(t.projectId) : (t.project || "");
+  return `
+    <div class="item ${t.done?"done":""}">
+      <input type="checkbox" class="item-check" ${t.done?"checked":""} onchange="togTask('${t.id}')">
+      <div class="item-body">
+        <div class="item-title">${esc(t.title)}</div>
+        <div class="item-meta">${t.due?"📅 "+t.due:""}${pn?" · 📁 "+esc(pn):""}</div>
+      </div>
+      ${t.pri?`<span class="badge b-${t.pri==="high"?"red":t.pri==="med"?"orange":"green"}">${t.pri}</span>`:""}
+      <button class="btn btn-sm" onclick="openTask('${t.id}')">এডিট</button>
+      <button class="btn btn-sm btn-danger" onclick="delTask('${t.id}')">✕</button>
+    </div>
+  `;
+}
+function openTask(id) {
+  const t = id ? S.tasks.find(x=>x.id===id) : null;
+  const opts = S.projects.map(p => `<option value="${p.id}" ${(t?.projectId===p.id)?"selected":""}>${esc(p.name)}</option>`).join("");
+  showModal(`
+    <h3>${t?"টাস্ক এডিট":"নতুন টাস্ক"}</h3>
+    <div class="form-group"><label>শিরোনাম</label><input class="input" id="tT" value="${esc(t?.title||"")}"></div>
+    <div class="form-group"><label>প্রায়োরিটি</label>
+      <select class="select" id="tP">
+        <option value="">নেই</option>
+        <option value="high" ${t?.pri==="high"?"selected":""}>High</option>
+        <option value="med" ${t?.pri==="med"?"selected":""}>Medium</option>
+        <option value="low" ${t?.pri==="low"?"selected":""}>Low</option>
+      </select>
+    </div>
+    <div class="form-group"><label>ডেডলাইন</label><input type="date" class="input" id="tD" value="${t?.due||""}"></div>
+    <div class="form-group"><label>প্রজেক্ট</label>
+      <select class="select" id="tPr">
+        <option value="">নেই</option>
+        ${opts}
+      </select>
+    </div>
+    <div class="form-group"><label>নোট</label><textarea class="textarea" id="tN">${esc(t?.note||"")}</textarea></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">বাতিল</button>
+      <button class="btn btn-primary" onclick="saveTask('${id||""}')">সেভ</button>
+    </div>
+  `);
+}
+function saveTask(id) {
+  const title = document.getElementById("tT").value.trim();
+  if (!title) return toast("শিরোনাম দিন", "err");
+  const projectId = document.getElementById("tPr").value || "";
+  const d = {
+    title,
+    pri: document.getElementById("tP").value,
+    due: document.getElementById("tD").value,
+    projectId,
+    project: projectName(projectId),
+    note: document.getElementById("tN").value
+  };
+  if (id) Object.assign(S.tasks.find(x=>x.id===id), d);
+  else S.tasks.push({ id: uid(), ...d, done: false, created: Date.now() });
+  save(); closeModal(); render();
+  toast(id ? "টাস্ক আপডেট" : "টাস্ক যোগ হয়েছে", "ok");
+}
+function togTask(id) { const t = S.tasks.find(x=>x.id===id); if(t){t.done=!t.done;save();render();} }
+function delTask(id) {
+  appConfirm("এই টাস্ক মুছে ফেলবেন?", () => {
+    S.tasks = S.tasks.filter(t=>t.id!==id); save(); render(); toast("টাস্ক মুছে ফেলা হয়েছে", "info");
+  });
+}
+
+/* ============================================================
+   PROJECTS
+   ============================================================ */
+function rProjects(c, tr) {
+  tr.innerHTML = `<button class="btn btn-primary btn-sm" onclick="openProject()">+ প্রজেক্ট</button>`;
+  if (!S.projects.length) {
+    c.innerHTML = `<div class="empty"><div class="big">📁</div><p>কোনো প্রজেক্ট নেই</p><button class="btn btn-primary btn-lg" onclick="openProject()">প্রথম প্রজেক্ট</button></div>`;
+    return;
+  }
+  c.innerHTML = `<div class="grid g2">${S.projects.map(p => {
+    const ts = S.tasks.filter(t => t.projectId === p.id || (!t.projectId && t.project === p.name));
+    const dn = ts.filter(t=>t.done).length;
+    const pct = ts.length ? Math.round(dn/ts.length*100) : 0;
+    return `
+      <div class="card card-hover">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <strong style="font-size:16px">${esc(p.name)}</strong>
+          <span class="badge b-blue">${p.status||"active"}</span>
+        </div>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:12px">${esc(p.desc||"")}</p>
+        <div style="height:6px;background:var(--bg2);border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px"></div>
+        </div>
+        <div style="font-size:12px;color:var(--text3);margin-top:6px">${dn}/${ts.length} টাস্ক · ${pct}%</div>
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <button class="btn btn-sm" onclick="openProject('${p.id}')">এডিট</button>
+          <button class="btn btn-sm btn-danger" onclick="delProject('${p.id}')">মুছুন</button>
+        </div>
+      </div>
+    `;
+  }).join("")}</div>`;
+}
+function openProject(id) {
+  const p = id ? S.projects.find(x=>x.id===id) : null;
+  showModal(`
+    <h3>${p?"প্রজেক্ট এডিট":"নতুন প্রজেক্ট"}</h3>
+    <div class="form-group"><label>নাম</label><input class="input" id="prN" value="${esc(p?.name||"")}"></div>
+    <div class="form-group"><label>বিবরণ</label><textarea class="textarea" id="prD">${esc(p?.desc||"")}</textarea></div>
+    <div class="form-group"><label>স্ট্যাটাস</label>
+      <select class="select" id="prS">
+        <option value="active" ${p?.status==="active"?"selected":""}>Active</option>
+        <option value="paused" ${p?.status==="paused"?"selected":""}>Paused</option>
+        <option value="done" ${p?.status==="done"?"selected":""}>Done</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">বাতিল</button>
+      <button class="btn btn-primary" onclick="saveProject('${id||""}')">সেভ</button>
+    </div>
+  `);
+}
+function saveProject(id) {
+  const name = document.getElementById("prN").value.trim();
+  if (!name) return toast("নাম দিন", "err");
+  const d = { name, desc: document.getElementById("prD").value, status: document.getElementById("prS").value };
+  if (id) Object.assign(S.projects.find(x=>x.id===id), d);
+  else S.projects.push({ id: uid(), ...d, created: Date.now() });
+  save(); closeModal(); render();
+  toast(id ? "প্রজেক্ট আপডেট" : "প্রজেক্ট যোগ", "ok");
+}
+function delProject(id) {
+  appConfirm("প্রজেক্ট মুছবেন?", () => {
+    S.projects = S.projects.filter(p => p.id !== id);
+    S.tasks.forEach(t => {
+      if (t.projectId === id) { t.projectId = ""; t.project = ""; }
+    });
+    save(); render();
+    toast("প্রজেক্ট মুছে ফেলা হয়েছে", "info");
+  });
+}
+
+/* ============================================================
+   TIME TRACKER
+   ============================================================ */
+function rTime(c) {
+  const logs = S.timeLogs.slice().reverse().slice(0,20);
+  const pomoLeft = timer.pomoMode ? Math.max(0, timer.pomoTarget - timer.secs) : 0;
+  c.innerHTML = `
+    <div class="card" style="max-width:440px;margin:0 auto 24px;text-align:center">
+      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px;flex-wrap:wrap">
+        <button class="btn btn-sm ${!timer.pomoMode?'btn-primary':''}" onclick="setPomo(false)">স্টপওয়াচ</button>
+        <button class="btn btn-sm ${timer.pomoMode?'btn-primary':''}" onclick="setPomo(true)">পমোডোরো ২৫</button>
+      </div>
+      <div style="font-size:13px;color:var(--text3);margin-bottom:4px" id="tmLabelShow">${esc(timer.label)||(timer.pomoMode?(timer.pomoPhase==="break"?"ব্রেক":"ফোকাস"):"ফোকাস সেশন")}</div>
+      <div class="timer-display" id="timerDisp">${timer.pomoMode?fmtTime(pomoLeft):fmtTime(timer.secs)}</div>
+      ${timer.pomoMode?`<div style="font-size:12px;color:var(--text3);margin-bottom:8px">${timer.pomoPhase==="break"?"☕ ব্রেক":"🎯 কাজ"} · টার্গেট ${Math.round(timer.pomoTarget/60)} মিনিট</div>`:""}
+      <div class="timer-btns">
+        <button class="btn btn-primary btn-lg" id="tmStartBtn" onclick="timerStart()">${timer.running?"⏸ পজ":"▶ স্টার্ট"}</button>
+        <button class="btn btn-lg" onclick="timerReset()">রিসেট</button>
+        <button class="btn btn-lg" onclick="timerSave()">লগ সেভ</button>
+      </div>
+      <div class="form-group" style="margin-top:16px;text-align:left">
+        <label>সেশনের নাম</label>
+        <input class="input" id="tmLabel" value="${esc(timer.label)}" placeholder="পড়ালেখা / প্রজেক্ট..." oninput="timer.label=this.value;const s=document.getElementById('tmLabelShow');if(s)s.textContent=this.value||'ফোকাস সেশন'">
+      </div>
+    </div>
+    <div class="section-head"><h3>সাম্প্রতিক লগ</h3></div>
+    ${logs.length ? logs.map(l => `
+      <div class="item">
+        <div class="item-body">
+          <div class="item-title">${esc(l.label||"সেশন")}</div>
+          <div class="item-meta">${l.date} · ${fmtTime(l.secs)}</div>
+        </div>
+        <button class="btn btn-sm btn-danger" onclick="delLog('${l.id}')">✕</button>
+      </div>
+    `).join("") : '<div class="empty" style="padding:30px"><p>কোনো লগ নেই</p></div>'}
+  `;
+  tickTimer();
+}
+function setPomo(on) {
+  clearInterval(timer.interval);
+  timer.running = false;
+  timer.pomoMode = !!on;
+  timer.secs = 0;
+  timer.pomoPhase = "work";
+  timer.pomoTarget = 25 * 60;
+  updateTimerPill();
+  render();
+}
+function fmtTime(s) {
+  const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+  return [h,m,sec].map(n => String(n).padStart(2,"0")).join(":");
+}
+function tickTimer() {
+  const el = document.getElementById("timerDisp");
+  if (el) {
+    if (timer.pomoMode) el.textContent = fmtTime(Math.max(0, timer.pomoTarget - timer.secs));
+    else el.textContent = fmtTime(timer.secs);
+  }
+  updateTimerPill();
+  if (timer.pomoMode && timer.running && timer.secs >= timer.pomoTarget) {
+    clearInterval(timer.interval);
+    timer.running = false;
+    if (timer.pomoPhase === "work") {
+      toast("পমোডোরো শেষ! ৫ মিনিট ব্রেক", "ok");
+      timer.pomoPhase = "break";
+      timer.pomoTarget = 5 * 60;
+      timer.secs = 0;
+    } else {
+      toast("ব্রেক শেষ! আবার ফোকাস", "ok");
+      timer.pomoPhase = "work";
+      timer.pomoTarget = 25 * 60;
+      timer.secs = 0;
+    }
+    updateTimerPill();
+    if (view === "time") render();
+  }
+}
+function persistTimerState() {
+  try {
+    localStorage.setItem("omar_cc_timer_state", JSON.stringify({
+      running: timer.running, secs: timer.secs, label: timer.label,
+      pomoMode: timer.pomoMode, pomoPhase: timer.pomoPhase, pomoTarget: timer.pomoTarget,
+      startedAt: timer.running ? Date.now() : null
+    }));
+  } catch(e) {}
+}
+function timerStart() {
+  if (timer.running) {
+    clearInterval(timer.interval); timer.running = false;
+  } else {
+    timer.running = true;
+    timer._baseSecs = timer.secs;
+    timer._startTs = Date.now();
+    clearInterval(timer.interval);
+    // Timestamp-based tick: immune to setInterval drift from tab throttling
+    timer.interval = setInterval(() => {
+      timer.secs = timer._baseSecs + Math.floor((Date.now() - timer._startTs) / 1000);
+      tickTimer();
+      persistTimerState();
+    }, 1000);
+  }
+  updateTimerPill();
+  persistTimerState();
+  const btn = document.getElementById("tmStartBtn");
+  if (btn) btn.textContent = timer.running ? "⏸ পজ" : "▶ স্টার্ট";
+  if (!timer.running && view === "time") render();
+  else tickTimer();
+}
+function timerReset() {
+  clearInterval(timer.interval); timer.running = false; timer.secs = 0;
+  if (timer.pomoMode) {
+    timer.pomoPhase = "work";
+    timer.pomoTarget = 25 * 60;
+  }
+  try { localStorage.removeItem("omar_cc_timer_state"); } catch(e) {}
+  updateTimerPill();
+  render();
+}
+function restoreTimerState() {
+  try {
+    const raw = localStorage.getItem("omar_cc_timer_state");
+    if (!raw) return;
+    const st = JSON.parse(raw);
+    if (!st) return;
+    timer.label = st.label || "";
+    timer.pomoMode = !!st.pomoMode;
+    timer.pomoPhase = st.pomoPhase || "work";
+    timer.pomoTarget = st.pomoTarget || 25 * 60;
+    timer.secs = st.secs || 0;
+    if (st.running && st.startedAt) {
+      // add elapsed time while the page/tab was closed
+      timer.secs += Math.floor((Date.now() - st.startedAt) / 1000);
+      timer.running = true;
+      timer._baseSecs = timer.secs;
+      timer._startTs = Date.now();
+      timer.interval = setInterval(() => {
+        timer.secs = timer._baseSecs + Math.floor((Date.now() - timer._startTs) / 1000);
+        tickTimer();
+        persistTimerState();
+      }, 1000);
+    }
+    updateTimerPill();
+  } catch(e) {}
+}
+function toggleSearch() {
+  const w = document.getElementById("searchWrap");
+  if (!w) return;
+  w.classList.toggle("open");
+  if (w.classList.contains("open")) {
+    const inp = document.getElementById("globalSearch");
+    if (inp) inp.focus();
+  }
+}
+function timerSave() {
+  if (timer.secs < 1) return toast("প্রথমে টাইমার চালান", "err");
+  S.timeLogs.push({ id: uid(), label: timer.label || "সেশন", secs: timer.secs, date: today() });
+  try { localStorage.removeItem("omar_cc_timer_state"); } catch(e) {}
+  timerReset(); save();
+  toast("টাইম লগ সেভ", "ok");
+}
+function delLog(id) {
+  appConfirm("এই টাইম লগ মুছে ফেলবেন?", () => {
+    S.timeLogs = S.timeLogs.filter(l=>l.id!==id); save(); render(); toast("লগ মুছে ফেলা হয়েছে", "info");
+  });
+}
+
+/* ============================================================
+   HABITS
+   ============================================================ */
+function rHabits(c, tr) {
+  tr.innerHTML = `<button class="btn btn-primary btn-sm" onclick="openHabit()">+ হ্যাবিট</button>`;
+  if (!S.habits.length) {
+    c.innerHTML = `<div class="empty"><div class="big">🔥</div><p>কোনো হ্যাবিট নেই</p><button class="btn btn-primary btn-lg" onclick="openHabit()">প্রথম হ্যাবিট</button></div>`;
+    return;
+  }
+  const days = lastNDays(14);
+  c.innerHTML = S.habits.map(h => `
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+        <strong>${esc(h.name)} <span class="badge b-green">${streakOf(h)} দিন স্ট্রিক</span></strong>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm" onclick="openHabit('${h.id}')">এডিট</button>
+          <button class="btn btn-sm btn-danger" onclick="delHabit('${h.id}')">✕</button>
+        </div>
+      </div>
+      <div class="habit-scroll">
+      <div class="habit-row" style="grid-template-columns:repeat(14,1fr)">
+        ${days.map(d => {
+          const on = (h.logs||[]).includes(d);
+          const isT = d === today();
+          return `<div class="habit-cell ${on?"on":""} ${isT?"today":""}" onclick="togHabit('${h.id}','${d}')" title="${d}">${d.slice(8)}</div>`;
+        }).join("")}
+      </div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:8px">শেষ ১৪ দিন · মোট ${(h.logs||[]).length} চেক</div>
+    </div>
+  `).join("");
+}
+function lastNDays(n) {
+  const a = [];
+  for (let i=n-1;i>=0;i--) { const d=new Date(); d.setDate(d.getDate()-i); a.push(localDateStr(d)); }
+  return a;
+}
+function streakOf(h) {
+  const logs = (h.logs||[]).slice().sort().reverse();
+  let s = 0; const t = new Date();
+  for (let i=0;i<365;i++) {
+    const d = new Date(t); d.setDate(d.getDate()-i);
+    const k = localDateStr(d);
+    if (logs.includes(k)) s++; else if (i>0) break;
+  }
+  return s;
+}
+function togHabit(id, day) {
+  const h = S.habits.find(x=>x.id===id); if(!h) return;
+  h.logs = h.logs || [];
+  const i = h.logs.indexOf(day);
+  if (i>=0) h.logs.splice(i,1); else h.logs.push(day);
+  save(); render();
+}
+function openHabit(id) {
+  const h = id ? S.habits.find(x=>x.id===id) : null;
+  showModal(`
+    <h3>${h?"হ্যাবিট এডিট":"নতুন হ্যাবিট"}</h3>
+    <div class="form-group"><label>নাম</label><input class="input" id="hN" value="${esc(h?.name||"")}" placeholder="বই পড়া, ব্যায়াম, পড়ালেখা..."></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">বাতিল</button>
+      <button class="btn btn-primary" onclick="saveHabit('${id||""}')">সেভ</button>
+    </div>
+  `);
+}
+function saveHabit(id) {
+  const n = document.getElementById("hN").value.trim();
+  if (!n) return toast("নাম দিন", "err");
+  if (id) {
+    const h = S.habits.find(x => x.id === id);
+    if (h) h.name = n;
+  } else {
+    S.habits.push({ id: uid(), name: n, logs: [] });
+  }
+  save(); closeModal(); render();
+  toast(id ? "হ্যাবিট আপডেট" : "হ্যাবিট যোগ", "ok");
+}
+function delHabit(id) {
+  appConfirm("এই হ্যাবিট মুছে ফেলবেন?", () => {
+    S.habits = S.habits.filter(h=>h.id!==id); save(); render(); toast("হ্যাবিট মুছে ফেলা হয়েছে", "info");
+  });
+}
+
+/* ============================================================
+   CALENDAR
+   ============================================================ */
+function rCal(c, tr) {
+  tr.innerHTML = `<button class="btn btn-primary btn-sm" onclick="openEvent()">+ ইভেন্ট</button>`;
+  const y = calCursor.getFullYear(), m = calCursor.getMonth();
+  const first = new Date(y,m,1), last = new Date(y,m+1,0);
+  const weekStart = (S.settings.weekStart === 1) ? 1 : 0;
+  const start = (first.getDay() - weekStart + 7) % 7;
+  const dim = last.getDate();
+  const locale = appLocale();
+  const label = calCursor.toLocaleDateString(locale,{month:"long",year:"numeric"});
+  const dows = weekStart === 1
+    ? (locale === "en-US" ? ["Mo","Tu","We","Th","Fr","Sa","Su"] : ["সো","ম","বু","বৃ","শু","শ","র"])
+    : (locale === "en-US" ? ["Su","Mo","Tu","We","Th","Fr","Sa"] : ["র","সো","ম","বু","বৃ","শু","শ"]);
+  let html = `<div class="cal-head">
+    <button class="btn btn-sm" onclick="calNav(-1)">‹</button>
+    <h3 style="font-size:17px">${label}</h3>
+    <button class="btn btn-sm" onclick="calNav(1)">›</button>
+  </div>`;
+  html += `<div class="cal-grid" style="margin-bottom:6px">${dows.map(d=>`<div class="cal-dow">${d}</div>`).join("")}</div><div class="cal-grid">`;
+  for (let i=0;i<start;i++) html += `<div class="cal-cell mute"></div>`;
+  const tdKey = today();
+  for (let d=1;d<=dim;d++) {
+    const key = `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const evs = S.events.filter(e => e.date === key);
+    const isToday = key === tdKey;
+    html += `<div class="cal-cell${isToday?" today":""}" style="cursor:pointer" onclick="openEvent(null,'${key}')" title="${isToday?"আজ":key}"><div class="cal-num">${d}</div>${isToday?'<div style="font-size:9px;font-weight:700;color:var(--accent);margin-bottom:2px">আজ</div>':""}${evs.map(e=>`<div class="cal-ev">${esc(e.title)}</div>`).join("")}</div>`;
+  }
+  html += `</div>`;
+  const up = S.events.filter(e => e.date >= today()).sort((a,b)=>a.date.localeCompare(b.date));
+  html += `<div class="section-head" style="margin-top:22px"><h3>আসন্ন ইভেন্ট</h3></div>`;
+  html += up.map(e => `
+    <div class="item">
+      <div class="item-body"><div class="item-title">${esc(e.title)}</div><div class="item-meta">${e.date} ${e.time||""}</div></div>
+      <button class="btn btn-sm" onclick="openEvent('${e.id}')">এডিট</button>
+      <button class="btn btn-sm btn-danger" onclick="delEvent('${e.id}')">✕</button>
+    </div>
+  `).join("") || '<div class="empty" style="padding:28px"><p>কোনো আসন্ন ইভেন্ট নেই</p></div>';
+  c.innerHTML = html;
+}
+function calNav(delta) {
+  calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth() + delta, 1);
+  render();
+}
+function openEvent(id, presetDate) {
+  const e = id ? S.events.find(x=>x.id===id) : null;
+  showModal(`
+    <h3>${e?"ইভেন্ট এডিট":"নতুন ইভেন্ট"}</h3>
+    <div class="form-group"><label>শিরোনাম</label><input class="input" id="eT" value="${esc(e?.title||"")}"></div>
+    <div class="form-group"><label>তারিখ</label><input type="date" class="input" id="eD" value="${e?.date||presetDate||today()}"></div>
+    <div class="form-group"><label>সময়</label><input type="time" class="input" id="eTi" value="${e?.time||""}"></div>
+    <div class="form-group"><label>নোট</label><textarea class="textarea" id="eN">${esc(e?.note||"")}</textarea></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">বাতিল</button>
+      <button class="btn btn-primary" onclick="saveEvent('${id||""}')">সেভ</button>
+    </div>
+  `);
+}
+function saveEvent(id) {
+  const title = document.getElementById("eT").value.trim();
+  if (!title) return toast("শিরোনাম দিন", "err");
+  const d = { title, date: document.getElementById("eD").value, time: document.getElementById("eTi").value, note: document.getElementById("eN").value };
+  if (id) Object.assign(S.events.find(x=>x.id===id), d);
+  else S.events.push({ id: uid(), ...d });
+  save(); closeModal(); render();
+  toast(id ? "ইভেন্ট আপডেট" : "ইভেন্ট যোগ", "ok");
+}
+function delEvent(id) {
+  appConfirm("এই ইভেন্ট মুছে ফেলবেন?", () => {
+    S.events = S.events.filter(e=>e.id!==id); save(); render(); toast("ইভেন্ট মুছে ফেলা হয়েছে", "info");
+  });
+}
+
+/* ============================================================
+   MONEY
+   ============================================================ */
+function moneyNav(d) {
+  const [y, m] = moneyMonth.split("-").map(Number);
+  const dt = new Date(y, m - 1 + d, 1);
+  moneyMonth = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}`;
+  render();
+}
+function rMoney(c, tr) {
+  tr.innerHTML = `<button class="btn btn-primary btn-sm" onclick="openTx()">+ লেনদেন</button>`;
+  const inc = S.txs.filter(t=>t.type==="in").reduce((s,t)=>s+(+t.amt||0),0);
+  const exp = S.txs.filter(t=>t.type==="out").reduce((s,t)=>s+(+t.amt||0),0);
+  const cur = S.settings.currency;
+  const ym = moneyMonth;
+  const monthTx = S.txs.filter(t => (t.date||"").startsWith(ym));
+  const mInc = monthTx.filter(t => t.type==="in").reduce((s,t)=>s+(+t.amt||0),0);
+  const mExp = monthTx.filter(t => t.type==="out").reduce((s,t)=>s+(+t.amt||0),0);
+  const catMap = {};
+  monthTx.filter(t => t.type==="out").forEach(t => {
+    const k = t.cat || "অন্যান্য";
+    catMap[k] = (catMap[k] || 0) + (+t.amt || 0);
+  });
+  const catRows = Object.entries(catMap).sort((a,b)=>b[1]-a[1]).slice(0,6)
+    .map(([k,v]) => `<div class="item" style="padding:10px 12px"><div class="item-body"><div class="item-title">${esc(k)}</div></div><strong>${cur}${fmtMoney(v)}</strong></div>`).join("")
+    || '<div style="font-size:13px;color:var(--text3);padding:8px">এই মাসের ক্যাটাগরি নেই</div>';
+
+  // last 6 months bar chart data
+  const bars = [];
+  for (let i = 5; i >= 0; i--) {
+    const [y, m] = ym.split("-").map(Number);
+    const dt = new Date(y, m - 1 - i, 1);
+    const key = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}`;
+    const out = S.txs.filter(t => t.type==="out" && (t.date||"").startsWith(key)).reduce((s,t)=>s+(+t.amt||0),0);
+    const inn = S.txs.filter(t => t.type==="in" && (t.date||"").startsWith(key)).reduce((s,t)=>s+(+t.amt||0),0);
+    bars.push({ key, out, inn, label: key.slice(5) });
+  }
+  const maxBar = Math.max(1, ...bars.map(b => Math.max(b.out, b.inn)));
+  const barHtml = bars.map(b => `
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;min-width:0">
+      <div style="display:flex;align-items:flex-end;gap:3px;height:100px;width:100%">
+        <div class="money-bar" style="height:${Math.max(4, Math.round(b.inn/maxBar*100))}%;flex:1" title="আয় ${b.inn}"></div>
+        <div class="money-bar out" style="height:${Math.max(4, Math.round(b.out/maxBar*100))}%;flex:1" title="ব্যয় ${b.out}"></div>
+      </div>
+      <span style="font-size:9px;color:var(--text3);margin-top:4px">${b.label}</span>
+    </div>
+  `).join("");
+
+  c.innerHTML = `
+    <div class="grid g3" style="margin-bottom:16px">
+      <div class="stat-card"><div class="stat-label">মোট আয়</div><div class="stat-num" style="color:var(--green);font-size:22px">${cur}${fmtMoney(inc)}</div></div>
+      <div class="stat-card"><div class="stat-label">মোট ব্যয়</div><div class="stat-num" style="color:var(--red);font-size:22px">${cur}${fmtMoney(exp)}</div></div>
+      <div class="stat-card"><div class="stat-label">ব্যালেন্স</div><div class="stat-num" style="font-size:22px">${cur}${fmtMoney(inc-exp)}</div></div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="section-head">
+        <div style="display:flex;align-items:center;gap:8px">
+          <button class="btn btn-sm" onclick="moneyNav(-1)">‹</button>
+          <h3>${ym}</h3>
+          <button class="btn btn-sm" onclick="moneyNav(1)">›</button>
+        </div>
+      </div>
+      <div class="grid g2">
+        <div style="font-size:14px;line-height:1.8">
+          <div>আয়: <b style="color:var(--green)">${cur}${fmtMoney(mInc)}</b></div>
+          <div>ব্যয়: <b style="color:var(--red)">${cur}${fmtMoney(mExp)}</b></div>
+          <div>নেট: <b>${cur}${fmtMoney(mInc-mExp)}</b></div>
+        </div>
+        <div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:4px">শেষ ৬ মাস</div>
+          <div style="display:flex;gap:12px;font-size:11px;color:var(--text3);margin-bottom:6px">
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--accent-soft);vertical-align:middle"></span> আয়</span>
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--red-soft);vertical-align:middle"></span> ব্যয়</span>
+          </div>
+          <div class="money-bar-wrap">${barHtml}</div>
+        </div>
+      </div>
+    </div>
+    <div class="grid g2" style="margin-bottom:20px">
+      <div class="card">
+        <div class="section-head"><h3>মাসিক ক্যাটাগরি (ব্যয়)</h3></div>
+        ${catRows}
+      </div>
+      <div class="card">
+        <div class="section-head"><h3>এই মাসের লেনদেন</h3></div>
+        ${monthTx.slice().reverse().map(t => `
+          <div class="item" style="padding:8px 10px">
+            <div class="item-body"><div class="item-title">${esc(t.title)}</div><div class="item-meta">${t.date||""}</div></div>
+            <span style="font-weight:700;color:${t.type==="in"?"var(--green)":"var(--red)"}">${t.type==="in"?"+":"-"}${cur}${fmtMoney(t.amt)}</span>
+          </div>
+        `).join("") || '<div style="font-size:13px;color:var(--text3);padding:8px">কিছু নেই</div>'}
+      </div>
+    </div>
+    <div class="section-head"><h3>সব লেনদেন</h3></div>
+    ${S.txs.slice().reverse().map(t => `
+      <div class="item">
+        <div class="item-body">
+          <div class="item-title">${esc(t.title)}</div>
+          <div class="item-meta">${t.date||""} · ${esc(t.cat||"")}</div>
+        </div>
+        <span style="font-weight:700;color:${t.type==="in"?"var(--green)":"var(--red)"}">${t.type==="in"?"+":"-"}${cur}${fmtMoney(t.amt)}</span>
+        <button class="btn btn-sm" onclick="openTx('${t.id}')">এডিট</button>
+        <button class="btn btn-sm btn-danger" onclick="delTx('${t.id}')">✕</button>
+      </div>
+    `).join("") || '<div class="empty" style="padding:30px"><p>কোনো লেনদেন নেই</p></div>'}
+  `;
+}
+function openTx(id) {
+  const t = id ? S.txs.find(x=>x.id===id) : null;
+  showModal(`
+    <h3>${t?"লেনদেন এডিট":"নতুন লেনদেন"}</h3>
+    <div class="form-group"><label>টাইটেল</label><input class="input" id="xT" value="${esc(t?.title||"")}"></div>
+    <div class="form-group"><label>পরিমাণ</label><input type="number" class="input" id="xA" value="${t?.amt??""}"></div>
+    <div class="form-group"><label>ধরন</label>
+      <select class="select" id="xTy">
+        <option value="out" ${!t||t.type==="out"?"selected":""}>ব্যয়</option>
+        <option value="in" ${t?.type==="in"?"selected":""}>আয়</option>
+      </select>
+    </div>
+    <div class="form-group"><label>ক্যাটাগরি</label>
+      <input class="input" id="xC" list="catList" value="${esc(t?.cat||"")}" placeholder="খাবার, রিচার্জ...">
+      <datalist id="catList">
+        <option value="খাবার"><option value="রিচার্জ"><option value="পরিবহন"><option value="পড়ালেখা">
+        <option value="কেনাকাটা"><option value="স্বাস্থ্য"><option value="বেতন"><option value="উপহার"><option value="অন্যান্য">
+      </datalist>
+    </div>
+    <div class="form-group"><label>তারিখ</label><input type="date" class="input" id="xD" value="${t?.date||today()}"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">বাতিল</button>
+      <button class="btn btn-primary" onclick="saveTx('${id||""}')">সেভ</button>
+    </div>
+  `);
+}
+function saveTx(id) {
+  const title = document.getElementById("xT").value.trim();
+  const amt = document.getElementById("xA").value;
+  if (!title || !amt) return toast("সব পূরণ করুন", "err");
+  const d = { title, amt: +amt, type: document.getElementById("xTy").value, cat: document.getElementById("xC").value, date: document.getElementById("xD").value };
+  if (id) Object.assign(S.txs.find(x=>x.id===id), d);
+  else S.txs.push({ id: uid(), ...d });
+  save(); closeModal(); render();
+  toast(id ? "লেনদেন আপডেট" : "লেনদেন যোগ", "ok");
+}
+function delTx(id) {
+  appConfirm("এই লেনদেন মুছে ফেলবেন?", () => {
+    S.txs = S.txs.filter(t=>t.id!==id); save(); render(); toast("মুছে ফেলা হয়েছে", "info");
+  });
+}
+
+/* ============================================================
+   FILES & MEDIA
+   ============================================================ */
+function rFiles(c, tr) {
+  tr.innerHTML = `<button class="btn btn-primary btn-sm" onclick="openFile()">+ ফাইল</button>`;
+  if (!S.files.length) {
+    c.innerHTML = `<div class="empty"><div class="big">📎</div><p>কোনো ফাইল নেই</p><button class="btn btn-primary btn-lg" onclick="openFile()">ফাইল যোগ করুন</button></div>`;
+    return;
+  }
+  c.innerHTML = `<div class="grid g2">${S.files.map(f => {
+    const isPdf = f.type==="file" && f.url && (/\.pdf($|\?)/i.test(f.url) || /pdf/i.test(f.name||""));
+    let media = "";
+    if (f.type==="image" && f.url) media = `<img src="${f.url}" class="media-img" style="max-height:140px;object-fit:cover;width:100%;border-radius:10px">`;
+    else if (f.type==="video" && f.url) media = `<video src="${f.url}" controls style="width:100%;max-height:160px;border-radius:10px"></video>`;
+    else if (f.type==="audio" && f.url) media = `<audio src="${f.url}" controls style="width:100%;margin-top:8px"></audio>`;
+    else if (isPdf && f.url) media = `<iframe src="${f.url}" style="width:100%;height:160px;border:1px solid var(--border);border-radius:10px;margin-top:6px"></iframe>`;
+    return `
+    <div class="card card-hover">
+      <div style="font-size:15px;font-weight:600;margin-bottom:8px">${f.type==="image"?"🖼️":f.type==="video"?"🎬":f.type==="audio"?"🎵":isPdf?"📕":"📄"} ${esc(f.name)}</div>
+      ${media}
+      <div style="font-size:12px;color:var(--text3);margin-top:8px">${f.added||""}</div>
+      <div style="margin-top:10px;display:flex;gap:8px">
+        ${f.url?`<a class="btn btn-sm" href="${f.url}" target="_blank" rel="noopener">খুলুন</a>`:""}
+        <button class="btn btn-sm btn-danger" onclick="delFile('${f.id}')">মুছুন</button>
+      </div>
+    </div>`;
+  }).join("")}</div>`;
+}
+function openFile() {
+  showModal(`
+    <h3>ফাইল / মিডিয়া যোগ</h3>
+    <div class="form-group"><label>নাম</label><input class="input" id="fN"></div>
+    <div class="form-group"><label>ধরন</label>
+      <select class="select" id="fTy">
+        <option value="file">ফাইল / PDF / লিংক</option>
+        <option value="image">ইমেজ</option>
+        <option value="video">ভিডিও</option>
+        <option value="audio">অডিও</option>
+      </select>
+    </div>
+    <div class="form-group"><label>URL (YouTube / লিংক)</label><input class="input" id="fU" placeholder="https://..."></div>
+    <div class="form-group"><label>অথবা ফাইল আপলোড</label><input type="file" class="input" id="fF" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt"></div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:8px">Google লগইন থাকলে Firebase Storage-এ যাবে। নইলে ছোট ফাইল লোকাল base64।</div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">বাতিল</button>
+      <button class="btn btn-primary" onclick="saveFile()">সেভ</button>
+    </div>
+  `);
+}
+async function saveFile() {
+  const name = document.getElementById("fN").value.trim() || "আননেমড";
+  let type = document.getElementById("fTy").value;
+  let url = document.getElementById("fU").value.trim();
+  const fi = document.getElementById("fF");
+  if (fi.files[0]) {
+    const f = fi.files[0];
+    if (f.type.startsWith("image/")) type = "image";
+    else if (f.type.startsWith("video/")) type = "video";
+    else if (f.type.startsWith("audio/")) type = "audio";
+    else type = "file";
+    document.getElementById("saveDot").textContent = "আপলোড হচ্ছে...";
+    let cloudUrl = await uploadToCloud(f, "media");
+    if (cloudUrl) {
+      url = cloudUrl;
+    } else {
+      if (f.size > 1.8e6) return toast("ক্লাউড ছাড়া ১.৮MB এর বেশি ফাইল রাখা যায় না। Google লগইন করুন।", "err");
+      try { url = await readAsDataURL(f); } catch { return toast("ফাইল পড়া যায়নি", "err"); }
+    }
+  }
+  if (!url) return toast("URL দিন অথবা ফাইল সিলেক্ট করুন", "err");
+  S.files.push({ id: uid(), name, type, url, added: today() });
+  save(); closeModal(); render();
+}
+function delFile(id) {
+  appConfirm("এই ফাইল মুছে ফেলবেন?", () => {
+    S.files = S.files.filter(f=>f.id!==id); save(); render(); toast("ফাইল মুছে ফেলা হয়েছে", "info");
+  });
+}
+
+/* ============================================================
+   PORTFOLIO
+   ============================================================ */
+function rPort(c, tr) {
+  tr.innerHTML = `<button class="btn btn-primary btn-sm" onclick="openPort()">+ আইটেম</button>`;
+  if (!S.portfolio.length) {
+    c.innerHTML = `<div class="empty"><div class="big">💼</div><p>পোর্টফোলিও খালি</p><button class="btn btn-primary btn-lg" onclick="openPort()">প্রথম আইটেম যোগ করুন</button></div>`;
+    return;
+  }
+  c.innerHTML = `<div class="grid g2">${S.portfolio.map(p => `
+    <div class="port-card">
+      ${p.cover ? `<img class="port-cover" src="${esc(p.cover)}" alt="">` : `<div class="port-cover" style="display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:28px">💼</div>`}
+      <div style="font-size:16px;font-weight:700;margin-bottom:6px">${esc(p.title)}</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:8px">${esc(p.tag||"")}</div>
+      <p style="font-size:13.5px;color:var(--text2);line-height:1.55;margin-bottom:12px">${esc(p.desc||"")}</p>
+      ${p.link?`<a href="${esc(p.link)}" target="_blank" class="btn btn-sm" style="margin-right:8px">লিংক</a>`:""}
+      <button class="btn btn-sm" onclick="openPort('${p.id}')">এডিট</button>
+      <button class="btn btn-sm btn-danger" onclick="delPort('${p.id}')">মুছুন</button>
+    </div>
+  `).join("")}</div>`;
+}
+function openPort(id) {
+  const p = id ? S.portfolio.find(x=>x.id===id) : null;
+  showModal(`
+    <h3>${p?"এডিট":"নতুন পোর্টফোলিও আইটেম"}</h3>
+    <div class="form-group"><label>টাইটেল</label><input class="input" id="poT" value="${esc(p?.title||"")}"></div>
+    <div class="form-group"><label>ট্যাগ / ক্যাটাগরি</label><input class="input" id="poG" value="${esc(p?.tag||"")}" placeholder="ওয়েব, রিসার্চ, ডিজাইন..."></div>
+    <div class="form-group"><label>বিবরণ</label><textarea class="textarea" id="poD">${esc(p?.desc||"")}</textarea></div>
+    <div class="form-group"><label>লিংক</label><input class="input" id="poL" value="${esc(p?.link||"")}"></div>
+    <div class="form-group"><label>কভার ছবি URL</label><input class="input" id="poC" value="${esc(p?.cover||"")}" placeholder="https://..."></div>
+    <div class="form-group"><label>অথবা ছবি আপলোড</label><input type="file" class="input" id="poF" accept="image/*"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">বাতিল</button>
+      <button class="btn btn-primary" onclick="savePort('${id||""}')">সেভ</button>
+    </div>
+  `);
+}
+async function savePort(id) {
+  const title = document.getElementById("poT").value.trim();
+  if (!title) return toast("টাইটেল দিন", "err");
+  let cover = document.getElementById("poC").value.trim();
+  const fi = document.getElementById("poF");
+  if (fi && fi.files[0]) {
+    const f = fi.files[0];
+    let url = await uploadToCloud(f, "portfolio");
+    if (!url) {
+      try { url = await readAsDataURL(f, 1.5e6); } catch { return toast("ছবি বড় — Google লগইন করুন", "err"); }
+    }
+    cover = url;
+  }
+  const d = { title, tag: document.getElementById("poG").value, desc: document.getElementById("poD").value, link: document.getElementById("poL").value, cover };
+  if (id) Object.assign(S.portfolio.find(x=>x.id===id), d);
+  else S.portfolio.push({ id: uid(), ...d });
+  save(); closeModal(); render();
+  toast(id ? "আপডেট" : "যোগ হয়েছে", "ok");
+}
+function delPort(id) {
+  appConfirm("এই পোর্টফোলিও আইটেম মুছে ফেলবেন?", () => {
+    S.portfolio = S.portfolio.filter(p=>p.id!==id); save(); render(); toast("মুছে ফেলা হয়েছে", "info");
+  });
+}
+
+/* ============================================================
+   CLOCK
+   ============================================================ */
+function rClock(c) {
+  c.innerHTML = `
+    <div class="card" style="max-width:420px;margin:40px auto;text-align:center;padding:40px 24px">
+      <div class="clock-big" id="clk">--:--:--</div>
+      <div class="clock-date" id="clkD"></div>
+    </div>
+  `;
+  const locale = appLocale();
+  const tick = () => {
+    const n = new Date();
+    const el = document.getElementById("clk");
+    if (!el) return;
+    el.textContent = n.toLocaleTimeString(locale, { hour:"2-digit", minute:"2-digit", second:"2-digit", hour12:true });
+    document.getElementById("clkD").textContent = n.toLocaleDateString(locale, { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+  };
+  tick();
+  clockInterval = setInterval(tick, 1000);
+}
+
+/* ============================================================
+   CALCULATOR (Basic + Scientific)
+   ============================================================ */
+let calcExpr = "";
+/** Safe arithmetic only — no Function/eval */
+function safeCalc(expr) {
+  if (!expr || !/^[0-9+\-*/().\s]+$/.test(expr)) return null;
+  const tokens = [];
+  let i = 0;
+  while (i < expr.length) {
+    if (/\s/.test(expr[i])) { i++; continue; }
+    if ("+-*/()".includes(expr[i])) { tokens.push(expr[i]); i++; continue; }
+    if (/[0-9.]/.test(expr[i])) {
+      let n = "";
+      while (i < expr.length && /[0-9.]/.test(expr[i])) n += expr[i++];
+      tokens.push(parseFloat(n));
+      continue;
+    }
+    return null;
+  }
+  let p = 0;
+  function peek() { return tokens[p]; }
+  function next() { return tokens[p++]; }
+  function parseExpr() {
+    let v = parseTerm();
+    while (peek() === "+" || peek() === "-") {
+      const op = next();
+      const r = parseTerm();
+      v = op === "+" ? v + r : v - r;
+    }
+    return v;
+  }
+  function parseTerm() {
+    let v = parseFactor();
+    while (peek() === "*" || peek() === "/") {
+      const op = next();
+      const r = parseFactor();
+      v = op === "*" ? v * r : v / r;
+    }
+    return v;
+  }
+  function parseFactor() {
+    if (peek() === "-") { next(); return -parseFactor(); }
+    if (peek() === "+") { next(); return parseFactor(); }
+    if (peek() === "(") {
+      next();
+      const v = parseExpr();
+      if (next() !== ")") throw new Error(")");
+      return v;
+    }
+    const n = next();
+    if (typeof n !== "number" || isNaN(n)) throw new Error("n");
+    return n;
+  }
+  const result = parseExpr();
+  if (p !== tokens.length) throw new Error("t");
+  return result;
+}
+function rCalc(c) {
+  c.innerHTML = `
+    <div class="calc-box">
+      <input class="calc-display" id="calcD" value="0" readonly>
+      <div class="calc-grid">
+        <button class="calc-btn fn" onclick="calcFn('C')">C</button>
+        <button class="calc-btn fn" onclick="calcFn('CE')">CE</button>
+        <button class="calc-btn fn" onclick="calcFn('⌫')">⌫</button>
+        <button class="calc-btn op" onclick="calcFn('/')">÷</button>
+
+        <button class="calc-btn fn" onclick="calcFn('(')">(</button>
+        <button class="calc-btn fn" onclick="calcFn(')')">)</button>
+        <button class="calc-btn fn" onclick="calcFn('%')">%</button>
+        <button class="calc-btn op" onclick="calcFn('*')">×</button>
+
+        <button class="calc-btn" onclick="calcFn('7')">7</button>
+        <button class="calc-btn" onclick="calcFn('8')">8</button>
+        <button class="calc-btn" onclick="calcFn('9')">9</button>
+        <button class="calc-btn op" onclick="calcFn('-')">−</button>
+
+        <button class="calc-btn" onclick="calcFn('4')">4</button>
+        <button class="calc-btn" onclick="calcFn('5')">5</button>
+        <button class="calc-btn" onclick="calcFn('6')">6</button>
+        <button class="calc-btn op" onclick="calcFn('+')">+</button>
+
+        <button class="calc-btn" onclick="calcFn('1')">1</button>
+        <button class="calc-btn" onclick="calcFn('2')">2</button>
+        <button class="calc-btn" onclick="calcFn('3')">3</button>
+        <button class="calc-btn eq" onclick="calcFn('=')" style="grid-row:span 2">=</button>
+
+        <button class="calc-btn" onclick="calcFn('0')">0</button>
+        <button class="calc-btn" onclick="calcFn('.')">.</button>
+        <button class="calc-btn fn" onclick="calcFn('±')">±</button>
+
+        <button class="calc-btn fn" onclick="calcFn('sqrt')">√</button>
+        <button class="calc-btn fn" onclick="calcFn('sq')">x²</button>
+        <button class="calc-btn fn" onclick="calcFn('inv')">1/x</button>
+        <button class="calc-btn fn" onclick="calcFn('log')">log</button>
+        <button class="calc-btn fn" onclick="calcFn('sin')">sin</button>
+        <button class="calc-btn fn" onclick="calcFn('cos')">cos</button>
+        <button class="calc-btn fn" onclick="calcFn('tan')">tan</button>
+        <button class="calc-btn fn" onclick="calcFn('pi')">π</button>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:10px;text-align:center">sin/cos/tan ডিগ্রিতে · log = log₁₀ · ⌫ মুছে ফেলে</div>
+    </div>
+  `;
+  calcExpr = "";
+}
+function calcFn(k) {
+  const d = document.getElementById("calcD");
+  if (!d) return;
+  if (k === "C") { calcExpr = ""; d.value = "0"; return; }
+  if (k === "CE") { calcExpr = ""; d.value = "0"; return; }
+  if (k === "⌫") {
+    calcExpr = (calcExpr || "").slice(0, -1);
+    d.value = calcExpr || "0";
+    return;
+  }
+  if (k === "pi") {
+    if (d.value === "0" || d.value === "Error") calcExpr = "";
+    calcExpr += String(Math.PI);
+    d.value = calcExpr;
+    return;
+  }
+  if (k === "=") {
+    try {
+      let e = calcExpr.replace(/×/g,"*").replace(/÷/g,"/").replace(/−/g,"-");
+      const r = safeCalc(e);
+      if (r === null || !isFinite(r)) throw new Error("bad");
+      // round floating noise
+      const rounded = Math.round(r * 1e12) / 1e12;
+      d.value = rounded; calcExpr = String(rounded);
+    } catch { d.value = "Error"; calcExpr = ""; }
+    return;
+  }
+  if (k === "±") {
+    if (calcExpr) { calcExpr = calcExpr.startsWith("-") ? calcExpr.slice(1) : "-" + calcExpr; d.value = calcExpr; }
+    return;
+  }
+  const unary = {
+    sqrt: x => Math.sqrt(x),
+    sq: x => Math.pow(x, 2),
+    inv: x => 1 / x,
+    "%": x => x / 100,
+    sin: x => Math.sin(x * Math.PI / 180),
+    cos: x => Math.cos(x * Math.PI / 180),
+    tan: x => Math.tan(x * Math.PI / 180),
+    log: x => Math.log10(x)
+  };
+  if (unary[k]) {
+    try {
+      const r = unary[k](parseFloat(calcExpr || d.value));
+      if (!isFinite(r)) throw new Error("bad");
+      const rounded = Math.round(r * 1e12) / 1e12;
+      d.value = rounded; calcExpr = String(rounded);
+    } catch { d.value = "Error"; calcExpr = ""; }
+    return;
+  }
+  if (d.value === "0" || d.value === "Error") calcExpr = "";
+  calcExpr += k;
+  d.value = calcExpr;
+}
+
+/* ============================================================
+   PROFILE
+   ============================================================ */
+function rProfile(c) {
+  const p = S.profile || {};
+  const dc = dataCounts();
+  const skills = (p.skills || "").split(",").map(s => s.trim()).filter(Boolean);
+  const coverHtml = p.cover
+    ? `<img src="${esc(p.cover)}" alt="">`
+    : "";
+  const links = [];
+  if (p.website) links.push({ ico: "🌐", label: "ওয়েবসাইট", href: p.website });
+  if (p.linkedin) links.push({ ico: "💼", label: "LinkedIn", href: p.linkedin });
+  if (p.github) links.push({ ico: "💻", label: "GitHub", href: p.github });
+  if (p.facebook) links.push({ ico: "📘", label: "Facebook", href: p.facebook });
+  if (p.whatsapp) links.push({ ico: "💬", label: "WhatsApp", href: (p.whatsapp.startsWith("http") ? p.whatsapp : "https://wa.me/" + p.whatsapp.replace(/[^0-9+]/g,"")) });
+  if (p.email) links.push({ ico: "✉️", label: "ইমেইল", href: "mailto:" + p.email });
+  if (p.phone) links.push({ ico: "📞", label: "ফোন", href: "tel:" + p.phone });
+
+  c.innerHTML = `
+    <div style="max-width:720px;margin:0 auto">
+      <div class="card" style="padding:20px 20px 24px;overflow:hidden">
+        <div class="prof-cover">${coverHtml}</div>
+        <div class="prof-hero">
+          <div class="prof-avatar" id="pfAv">${p.avatar?`<img src="${esc(p.avatar)}" alt="">`:(p.name||"O").charAt(0).toUpperCase()}</div>
+          <div style="flex:1;min-width:0;padding-bottom:4px">
+            <div style="font-size:24px;font-weight:700;letter-spacing:-.3px">${esc(p.name||"ইউজার")}</div>
+            ${p.title || p.company ? `<div style="font-size:14px;color:var(--text2);margin-top:2px">${esc(p.title||"")}${p.title&&p.company?" · ":""}${esc(p.company||"")}</div>` : ""}
+            ${p.location ? `<div style="font-size:12.5px;color:var(--text3);margin-top:4px">📍 ${esc(p.location)}</div>` : ""}
+          </div>
+        </div>
+        ${p.bio ? `<p style="margin-top:14px;font-size:14.5px;color:var(--text2);line-height:1.65;white-space:pre-wrap">${esc(p.bio)}</p>` : `<p style="margin-top:14px;font-size:13.5px;color:var(--text3)">বায়ো যোগ করুন — নিজেকে পরিচয় করিয়ে দিন</p>`}
+
+        <div class="prof-stat-grid">
+          <div class="prof-stat"><div class="n">${dc.tasks}</div><div class="l">টাস্ক</div></div>
+          <div class="prof-stat"><div class="n">${dc.projects}</div><div class="l">প্রজেক্ট</div></div>
+          <div class="prof-stat"><div class="n">${dc.habits}</div><div class="l">হ্যাবিট</div></div>
+          <div class="prof-stat"><div class="n">${dc.pages}</div><div class="l">পেজ</div></div>
+        </div>
+
+        ${skills.length ? `
+          <div class="prof-section">
+            <h4>🛠️ দক্ষতা / Skills</h4>
+            <div>${skills.map(s => `<span class="prof-chip">${esc(s)}</span>`).join("")}</div>
+          </div>
+        ` : ""}
+
+        <div class="prof-section">
+          <h4>ℹ️ তথ্য</h4>
+          <div class="grid g2" style="gap:10px;font-size:13.5px">
+            ${p.college ? `<div><span style="color:var(--text3)">🎓 শিক্ষা</span><div style="font-weight:500;margin-top:2px">${esc(p.college)}${p.subject?" · "+esc(p.subject):""}</div></div>` : ""}
+            ${p.birthday ? `<div><span style="color:var(--text3)">🎂 জন্মদিন</span><div style="font-weight:500;margin-top:2px">${esc(p.birthday)}</div></div>` : ""}
+            ${p.blood ? `<div><span style="color:var(--text3)">🩸 রক্তের গ্রুপ</span><div style="font-weight:500;margin-top:2px">${esc(p.blood)}</div></div>` : ""}
+            ${p.address ? `<div><span style="color:var(--text3)">🏠 ঠিকানা</span><div style="font-weight:500;margin-top:2px">${esc(p.address)}</div></div>` : ""}
+            ${p.email ? `<div><span style="color:var(--text3)">✉️ ইমেইল</span><div style="font-weight:500;margin-top:2px">${esc(p.email)}</div></div>` : ""}
+            ${p.phone ? `<div><span style="color:var(--text3)">📞 ফোন</span><div style="font-weight:500;margin-top:2px">${esc(p.phone)}</div></div>` : ""}
+          </div>
+          ${!p.college && !p.birthday && !p.blood && !p.address && !p.email && !p.phone ? '<div style="color:var(--text3);font-size:13px">এখনো বিস্তারিত তথ্য নেই — নিচে এডিট করুন</div>' : ""}
+        </div>
+
+        ${p.goals ? `
+          <div class="prof-section">
+            <h4>🎯 ভিশন / গোল</h4>
+            <p style="font-size:14px;color:var(--text2);line-height:1.65;white-space:pre-wrap">${esc(p.goals)}</p>
+          </div>
+        ` : ""}
+
+        ${links.length ? `
+          <div class="prof-section">
+            <h4>🔗 লিংক ও যোগাযোগ</h4>
+            <div class="prof-link-row">
+              ${links.map(l => `<a href="${esc(l.href)}" target="_blank" rel="noopener">${l.ico} ${esc(l.label)}</a>`).join("")}
+            </div>
+          </div>
+        ` : ""}
+      </div>
+
+      <div class="card" style="margin-top:16px;max-width:720px">
+        <div style="font-weight:700;font-size:16px;margin-bottom:16px">✏️ প্রোফাইল এডিট</div>
+
+        <div class="prof-section" style="border:none;padding-top:0;margin-top:0">
+          <h4>ছবি</h4>
+          <div class="form-group"><label>প্রোফাইল ছবি আপলোড</label><input type="file" class="input" id="pPhoto" accept="image/*"></div>
+          <div class="form-group"><label>অথবা অ্যাভাটার URL</label><input class="input" id="pA" value="${esc(p.avatar||"")}" placeholder="https://..."></div>
+          <div class="form-group"><label>কভার ছবি URL</label><input class="input" id="pCover" value="${esc(p.cover||"")}" placeholder="https://..."></div>
+          <div class="form-group"><label>অথবা কভার আপলোড</label><input type="file" class="input" id="pCoverFile" accept="image/*"></div>
+        </div>
+
+        <div class="prof-section">
+          <h4>মূল পরিচয়</h4>
+          <div class="form-group"><label>পূর্ণ নাম</label><input class="input" id="pN" value="${esc(p.name||"")}"></div>
+          <div class="form-group"><label>টাইটেল / পদবি</label><input class="input" id="pTitle" value="${esc(p.title||"")}" placeholder="Student · Developer · Founder..."></div>
+          <div class="form-group"><label>প্রতিষ্ঠান / কোম্পানি</label><input class="input" id="pCompany" value="${esc(p.company||"")}"></div>
+          <div class="form-group"><label>বায়ো</label><textarea class="textarea" id="pB" placeholder="নিজের সম্পর্কে সংক্ষেপে...">${esc(p.bio||"")}</textarea></div>
+          <div class="form-group"><label>অবস্থান</label><input class="input" id="pLoc" value="${esc(p.location||"")}" placeholder="ঢাকা, বাংলাদেশ"></div>
+        </div>
+
+        <div class="prof-section">
+          <h4>শিক্ষা ও ব্যক্তিগত</h4>
+          <div class="form-group"><label>কলেজ / বিশ্ববিদ্যালয়</label><input class="input" id="pC" value="${esc(p.college||"")}"></div>
+          <div class="form-group"><label>বিষয় / ডিপার্টমেন্ট</label><input class="input" id="pS" value="${esc(p.subject||"")}"></div>
+          <div class="form-group"><label>জন্মদিন</label><input type="date" class="input" id="pBday" value="${esc(p.birthday||"")}"></div>
+          <div class="form-group"><label>রক্তের গ্রুপ</label>
+            <select class="select" id="pBlood">
+              <option value="">—</option>
+              ${["A+","A-","B+","B-","O+","O-","AB+","AB-"].map(b => `<option value="${b}" ${p.blood===b?"selected":""}>${b}</option>`).join("")}
+            </select>
+          </div>
+          <div class="form-group"><label>ঠিকানা</label><input class="input" id="pAddr" value="${esc(p.address||"")}" placeholder="বাড়ি, রোড, এলাকা"></div>
+        </div>
+
+        <div class="prof-section">
+          <h4>যোগাযোগ</h4>
+          <div class="form-group"><label>ইমেইল</label><input class="input" id="pE" type="email" value="${esc(p.email||"")}"></div>
+          <div class="form-group"><label>ফোন</label><input class="input" id="pP" value="${esc(p.phone||"")}" placeholder="+8801..."></div>
+          <div class="form-group"><label>WhatsApp</label><input class="input" id="pWa" value="${esc(p.whatsapp||"")}" placeholder="8801... বা লিংক"></div>
+        </div>
+
+        <div class="prof-section">
+          <h4>সোশ্যাল ও ওয়েব</h4>
+          <div class="form-group"><label>ওয়েবসাইট</label><input class="input" id="pWeb" value="${esc(p.website||"")}" placeholder="https://"></div>
+          <div class="form-group"><label>LinkedIn</label><input class="input" id="pLi" value="${esc(p.linkedin||"")}" placeholder="https://linkedin.com/in/..."></div>
+          <div class="form-group"><label>GitHub</label><input class="input" id="pGh" value="${esc(p.github||"")}" placeholder="https://github.com/..."></div>
+          <div class="form-group"><label>Facebook</label><input class="input" id="pFb" value="${esc(p.facebook||"")}" placeholder="https://facebook.com/..."></div>
+        </div>
+
+        <div class="prof-section">
+          <h4>দক্ষতা ও ভিশন</h4>
+          <div class="form-group"><label>Skills (কমা দিয়ে আলাদা করুন)</label><input class="input" id="pSkills" value="${esc(p.skills||"")}" placeholder="JavaScript, Design, Research, Leadership"></div>
+          <div class="form-group"><label>জীবনের গোল / ভিশন</label><textarea class="textarea" id="pG" style="min-height:110px" placeholder="আপনার লক্ষ্য, স্বপ্ন...">${esc(p.goals||"")}</textarea></div>
+        </div>
+
+        <button class="btn btn-primary btn-lg" style="width:100%;margin-top:8px" onclick="saveProfile()">💾 প্রোফাইল সেভ করুন</button>
+      </div>
+    </div>
+  `;
+}
+async function saveProfile() {
+  let avatar = (document.getElementById("pA") || {}).value || "";
+  avatar = avatar.trim();
+  let cover = (document.getElementById("pCover") || {}).value || "";
+  cover = cover.trim();
+  const photoEl = document.getElementById("pPhoto");
+  if (photoEl && photoEl.files[0]) {
+    const f = photoEl.files[0];
+    document.getElementById("saveDot").textContent = "ছবি আপলোড...";
+    let url = await uploadToCloud(f, "avatar");
+    if (!url) {
+      try { url = await readAsDataURL(f, 1.5e6); } catch { toast("ছবি খুব বড় (১.৫MB এর কম) অথবা Google লগইন করুন", "err"); return; }
+    }
+    avatar = url;
+  }
+  const coverEl = document.getElementById("pCoverFile");
+  if (coverEl && coverEl.files[0]) {
+    const f = coverEl.files[0];
+    document.getElementById("saveDot").textContent = "কভার আপলোড...";
+    let url = await uploadToCloud(f, "cover");
+    if (!url) {
+      try { url = await readAsDataURL(f, 1.8e6); } catch { toast("কভার ছবি বড় — Google লগইন করুন", "err"); return; }
+    }
+    cover = url;
+  }
+  const g = id => (document.getElementById(id) || {}).value || "";
+  S.profile = {
+    name: g("pN"),
+    title: g("pTitle"),
+    company: g("pCompany"),
+    bio: g("pB"),
+    location: g("pLoc"),
+    college: g("pC"),
+    subject: g("pS"),
+    birthday: g("pBday"),
+    blood: g("pBlood"),
+    address: g("pAddr"),
+    email: g("pE"),
+    phone: g("pP"),
+    whatsapp: g("pWa"),
+    website: g("pWeb"),
+    linkedin: g("pLi"),
+    github: g("pGh"),
+    facebook: g("pFb"),
+    skills: g("pSkills"),
+    goals: g("pG"),
+    avatar,
+    cover
+  };
+  updateUser(); save();
+  toast("প্রোফাইল সেভ হয়েছে", "ok");
+  render();
+}
+
+/* ============================================================
+   SETTINGS
+   ============================================================ */
+function storageEstimate() {
+  try {
+    const raw = localStorage.getItem(KEY) || "";
+    const kb = (raw.length * 2) / 1024;
+    if (kb < 1024) return kb.toFixed(1) + " KB";
+    return (kb / 1024).toFixed(2) + " MB";
+  } catch { return "—"; }
+}
+function dataCounts() {
+  return {
+    pages: (S.pages || []).length,
+    tasks: (S.tasks || []).length,
+    projects: (S.projects || []).length,
+    habits: (S.habits || []).length,
+    events: (S.events || []).length,
+    txs: (S.txs || []).length,
+    files: (S.files || []).length,
+    portfolio: (S.portfolio || []).length
+  };
+}
+function setSettingsTab(t) {
+  settingsTab = t;
+  render();
+}
+function rSettings(c) {
+  const syncLine = lastSyncError
+    ? `⚠ শেষ ত্রুটি: ${esc(lastSyncError)}`
+    : (lastSyncAt ? `✓ শেষ সিঙ্ক: ${lastSyncAt.toLocaleString(appLocale())}` : "এখনো সিঙ্ক হয়নি");
+  const cfgPreview = (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY")
+    ? JSON.stringify(firebaseConfig, null, 2)
+    : '{\n  "apiKey": "...",\n  "authDomain": "...",\n  "projectId": "...",\n  "storageBucket": "...",\n  "messagingSenderId": "...",\n  "appId": "..."\n}';
+  const dc = dataCounts();
+  const tab = settingsTab || "general";
+
+  const tabs = [
+    { id: "general", label: "সাধারণ" },
+    { id: "appearance", label: "থিম ও UI" },
+    { id: "cloud", label: "ক্লাউড" },
+    { id: "security", label: "নিরাপত্তা" },
+    { id: "data", label: "ডেটা" },
+    { id: "about", label: "অ্যাপ ইনফো" }
+  ];
+
+  let body = "";
+  if (tab === "general") {
+    body = `
+      <div class="card" style="margin-bottom:14px">
+        <div style="font-weight:700;font-size:15px;margin-bottom:14px">⚙️ সাধারণ পছন্দ</div>
+        <div class="form-group"><label>ডিসপ্লে নাম</label>
+          <input class="input" id="sDisp" value="${esc(S.profile.name||"")}" placeholder="Omar Faruk">
+        </div>
+        <div class="form-group"><label>মুদ্রা সিম্বল</label>
+          <input class="input" id="sCur" value="${esc(S.settings.currency||"৳")}" list="curList" placeholder="৳">
+          <datalist id="curList"><option value="৳"><option value="$"><option value="€"><option value="£"><option value="₹"></datalist>
+        </div>
+        <div class="form-group"><label>সপ্তাহ শুরু</label>
+          <select class="select" id="sWeek">
+            <option value="0" ${(S.settings.weekStart||0)==0?"selected":""}>রবিবার</option>
+            <option value="1" ${S.settings.weekStart==1?"selected":""}>সোমবার</option>
+          </select>
+        </div>
+        <div class="form-group"><label>তারিখ ও সময়ের ভাষা</label>
+          <select class="select" id="sDateFmt" onchange="S.settings.dateFormat=this.value;save();toast(this.value==='en'?'Date language: English':'তারিখের ভাষা: বাংলা','ok')">
+            <option value="bn" ${(S.settings.dateFormat||"bn")==="bn"?"selected":""}>বাংলা (bn-BD)</option>
+            <option value="en" ${S.settings.dateFormat==="en"?"selected":""}>English (en-US)</option>
+          </select>
+          <div style="font-size:12px;color:var(--text3);margin-top:6px;line-height:1.5">ড্যাশবোর্ড, ঘড়ি, ক্যালেন্ডার ও সিঙ্ক সময় এই ভাষায় দেখাবে। পুরো অ্যাপ UI বাংলাই থাকবে।</div>
+        </div>
+        <div class="form-group"><label>ফ্লোটিং + বাটন (FAB)</label>
+          <select class="select" id="sFab">
+            <option value="1" ${S.settings.fabShow!==false?"selected":""}>দেখাও</option>
+            <option value="0" ${S.settings.fabShow===false?"selected":""}>লুকাও</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="saveSet()">সেটিংস সেভ</button>
+      </div>
+      <div class="card">
+        <div style="font-weight:700;font-size:15px;margin-bottom:10px">⌨️ কীবোর্ড শর্টকাট</div>
+        <div style="font-size:13.5px;color:var(--text2);line-height:1.9">
+          <div><kbd style="background:var(--card2);padding:2px 8px;border-radius:6px;border:1px solid var(--border)">/</kbd> — গ্লোবাল সার্চ</div>
+          <div><kbd style="background:var(--card2);padding:2px 8px;border-radius:6px;border:1px solid var(--border)">Esc</kbd> — সার্চ বন্ধ / মডাল বন্ধ</div>
+        </div>
+      </div>`;
+  } else if (tab === "appearance") {
+    body = `
+      <div class="card" style="margin-bottom:14px">
+        <div style="font-weight:700;font-size:15px;margin-bottom:14px">🎨 থিম</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <button class="btn ${(S.settings.theme||'light')==='light'?'btn-primary':''}" style="padding:18px;flex-direction:column;height:auto" onclick="setTheme('light')">
+            <span style="font-size:22px">☀️</span><span>লাইট</span>
+            <span style="font-size:11px;opacity:.8;font-weight:400">উজ্জ্বল ব্যাকগ্রাউন্ড</span>
+          </button>
+          <button class="btn ${S.settings.theme==='dark'?'btn-primary':''}" style="padding:18px;flex-direction:column;height:auto" onclick="setTheme('dark')">
+            <span style="font-size:22px">🌙</span><span>ডার্ক</span>
+            <span style="font-size:11px;opacity:.8;font-weight:400">চোখের আরাম</span>
+          </button>
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-weight:700;font-size:15px;margin-bottom:14px">📐 ঘনত্ব (Density)</div>
+        <div class="form-group"><label>কন্টেন্ট স্পেসিং</label>
+          <select class="select" id="sDensity" onchange="S.settings.density=this.value;save();applyDensity();toast('ঘনত্ব আপডেট','ok')">
+            <option value="comfortable" ${(S.settings.density||'comfortable')==='comfortable'?"selected":""}>আরামদায়ক</option>
+            <option value="compact" ${S.settings.density==='compact'?"selected":""}>কম্প্যাক্ট</option>
+          </select>
+        </div>
+        <p style="font-size:12.5px;color:var(--text3);line-height:1.5">কম্প্যাক্ট মোডে প্যাডিং কমে — ছোট স্ক্রিনে বেশি কন্টেন্ট দেখা যায়।</p>
+      </div>`;
+  } else if (tab === "cloud") {
+    body = `
+      <div class="card" style="margin-bottom:14px">
+        <div style="font-weight:700;font-size:15px;margin-bottom:12px">☁️ অ্যাকাউন্ট ও সিঙ্ক</div>
+        <div style="display:grid;gap:8px;font-size:13.5px;color:var(--text2);margin-bottom:14px">
+          <div style="display:flex;justify-content:space-between;gap:8px;padding:10px 12px;background:var(--card2);border-radius:10px">
+            <span>Firebase</span><b>${useCloud?"✅ প্রস্তুত":"❌ কনফিগ নেই"}</b>
+          </div>
+          <div style="display:flex;justify-content:space-between;gap:8px;padding:10px 12px;background:var(--card2);border-radius:10px">
+            <span>Google লগইন</span><b>${currentUser?"✅ "+esc(currentUser.email||"অ্যাকটিভ"):"— লগইন নেই"}</b>
+          </div>
+          <div style="display:flex;justify-content:space-between;gap:8px;padding:10px 12px;background:var(--card2);border-radius:10px">
+            <span>সিঙ্ক</span><b style="font-size:12px;text-align:right">${syncLine}</b>
+          </div>
+        </div>
+        <p style="font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:12px">
+          নোট/টাস্ক/ফাইন্যান্স → <b>Firestore</b> · ছবি/ফাইল → <b>Storage</b><br>
+          একই Google দিয়ে অন্য ডিভাইসে সব ফিরে আসে।
+        </p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${currentUser ? `<button class="btn" onclick="forceSyncNow()">এখনই সিঙ্ক</button>` : `<button class="btn btn-primary" onclick="logout();document.getElementById('app').style.display='none';document.getElementById('gate').style.display='flex'">লগইন স্ক্রিনে যান</button>`}
+          ${currentUser ? `<button class="btn btn-danger" onclick="logout()">লগআউট</button>` : ""}
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div style="font-weight:700;font-size:15px;margin-bottom:10px">🧙 Firebase সেটআপ (একবার)</div>
+        <ol style="font-size:13px;color:var(--text2);line-height:1.85;padding-left:18px;margin-bottom:12px">
+          <li><a href="https://console.firebase.google.com" target="_blank" rel="noopener">Firebase Console</a> → প্রজেক্ট তৈরি</li>
+          <li>Authentication → Google Enable</li>
+          <li>Firestore Database তৈরি</li>
+          <li>Storage চালু করুন</li>
+          <li>Web app কনফিগ কপি করুন</li>
+          <li>নিচে পেস্ট → সেভ → রিলোড → Google লগইন</li>
+        </ol>
+        <div class="form-group">
+          <label>Config JSON</label>
+          <textarea class="textarea" id="fbCfgPaste" style="min-height:130px;font-family:ui-monospace,monospace;font-size:12px">${esc(cfgPreview)}</textarea>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="saveFirebaseConfig()">কনফিগ সেভ ও রিলোড</button>
+          <button class="btn" onclick="clearFirebaseConfig()">কনফিগ মুছুন</button>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div style="font-weight:700;font-size:15px;margin-bottom:8px">🔒 Firestore Rules</div>
+        <pre id="fsRules" style="background:var(--card2);padding:12px;border-radius:10px;font-size:11px;overflow:auto;line-height:1.45;color:var(--text2);max-height:140px">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}</pre>
+        <button class="btn btn-sm" style="margin-top:8px" onclick="copyText('fsRules')">কপি</button>
+      </div>
+      <div class="card">
+        <div style="font-weight:700;font-size:15px;margin-bottom:8px">🔒 Storage Rules</div>
+        <pre id="stRules" style="background:var(--card2);padding:12px;border-radius:10px;font-size:11px;overflow:auto;line-height:1.45;color:var(--text2);max-height:140px">rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /users/{userId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}</pre>
+        <button class="btn btn-sm" style="margin-top:8px" onclick="copyText('stRules')">কপি</button>
+      </div>`;
+  } else if (tab === "security") {
+    body = `
+      <div class="card" style="margin-bottom:14px">
+        <div style="font-weight:700;font-size:15px;margin-bottom:10px">🔐 লোকাল পাসওয়ার্ড</div>
+        <div style="padding:12px;background:var(--orange-soft);border-radius:12px;font-size:12.5px;color:var(--text2);line-height:1.6;margin-bottom:14px">
+          ⚠️ এটি শুধু ব্রাউজার লক — আসল এনক্রিপশন নয়। DevTools দিয়ে বাইপাস সম্ভব।
+          গুরুত্বপূর্ণ ডেটার জন্য <b>Google লগইন</b> + নিয়মিত <b>JSON ব্যাকআপ</b> ব্যবহার করুন।
+        </div>
+        <div class="form-group"><label>বর্তমান পাসওয়ার্ড</label><input type="password" class="input" id="oldPw" placeholder="বর্তমান পাসওয়ার্ড" autocomplete="current-password"></div>
+        <div class="form-group"><label>নতুন পাসওয়ার্ড</label><input type="password" class="input" id="nwPw" placeholder="কমপক্ষে ৬ অক্ষর" autocomplete="new-password"></div>
+        <div class="form-group"><label>নতুন পাসওয়ার্ড (আবার)</label><input type="password" class="input" id="nwPw2" placeholder="আবার লিখুন" autocomplete="new-password"></div>
+        <button class="btn btn-primary" onclick="chgPw()">পাসওয়ার্ড আপডেট</button>
+      </div>
+      <div class="card">
+        <div style="font-weight:700;font-size:15px;margin-bottom:10px">🚪 সেশন</div>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.6">এই ডিভাইস থেকে লগআউট করলে গেট স্ক্রিনে ফিরবেন।</p>
+        <button class="btn" onclick="logout()">সেশন শেষ / লগআউট</button>
+      </div>`;
+  } else if (tab === "data") {
+    body = `
+      <div class="card" style="margin-bottom:14px">
+        <div style="font-weight:700;font-size:15px;margin-bottom:12px">📊 ডেটা সারাংশ</div>
+        <div class="grid g2" style="gap:8px;font-size:13px">
+          <div style="padding:10px;background:var(--card2);border-radius:10px">পেজ: <b>${dc.pages}</b></div>
+          <div style="padding:10px;background:var(--card2);border-radius:10px">টাস্ক: <b>${dc.tasks}</b></div>
+          <div style="padding:10px;background:var(--card2);border-radius:10px">প্রজেক্ট: <b>${dc.projects}</b></div>
+          <div style="padding:10px;background:var(--card2);border-radius:10px">হ্যাবিট: <b>${dc.habits}</b></div>
+          <div style="padding:10px;background:var(--card2);border-radius:10px">ইভেন্ট: <b>${dc.events}</b></div>
+          <div style="padding:10px;background:var(--card2);border-radius:10px">লেনদেন: <b>${dc.txs}</b></div>
+          <div style="padding:10px;background:var(--card2);border-radius:10px">ফাইল: <b>${dc.files}</b></div>
+          <div style="padding:10px;background:var(--card2);border-radius:10px">পোর্টফোলিও: <b>${dc.portfolio}</b></div>
+        </div>
+        <div style="margin-top:12px;font-size:13px;color:var(--text2)">লোকাল স্টোরেজ ব্যবহার: <b>${storageEstimate()}</b></div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div style="font-weight:700;font-size:15px;margin-bottom:10px">📤 ব্যাকআপ ও রিস্টোর</div>
+        <p style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:12px">JSON ফাইল ডাউনলোড করে Google Drive / অন্য জায়গায় রাখুন। নতুন ডিভাইসে ইমপোর্ট করুন।</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="exportData()">এক্সপোর্ট JSON</button>
+          <button class="btn" onclick="document.getElementById('impF').click()">ইমপোর্ট JSON</button>
+          <input type="file" id="impF" accept=".json,application/json" style="display:none" onchange="importData(event)">
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div style="font-weight:700;font-size:15px;margin-bottom:10px">🔄 অনবোর্ডিং</div>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:12px">ড্যাশবোর্ডের স্বাগতম গাইড আবার দেখাতে চাইলে।</p>
+        <button class="btn" onclick="S.settings.onboardDone=false;save();toast('অনবোর্ড রিসেট — ড্যাশবোর্ড দেখুন','ok');go('dash')">গাইড আবার দেখাও</button>
+      </div>
+      <div class="card">
+        <div style="font-weight:700;color:var(--red);margin-bottom:10px">⚠️ বিপদজনক জোন</div>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.6">সব লোকাল ডেটা মুছে যাবে। ক্লাউডে (Firebase) আলাদা ডেটা থাকতে পারে। আগে এক্সপোর্ট নিন।</p>
+        <button class="btn btn-danger" onclick="resetAll()">সব লোকাল ডেটা মুছুন</button>
+      </div>`;
+  } else {
+    body = `
+      <div class="card" style="margin-bottom:14px">
+        <div style="font-weight:700;font-size:15px;margin-bottom:12px">ℹ️ Omar Command Center</div>
+        <div style="font-size:13.5px;color:var(--text2);line-height:1.85">
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span>অ্যাপ</span><b>Omar Command Center</b></div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span>মালিক</span><b>Omar Faruk</b></div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span>ভার্সন</span><b>2.0 Final</b></div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span>স্টোরেজ</span><b>LocalStorage + Firebase</b></div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span>ক্লাউড</span><b>${useCloud?"Firebase প্রস্তুত":"কনফিগ প্রয়োজন"}</b></div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0"><span>সিঙ্ক</span><b style="font-size:12px;text-align:right;max-width:60%">${syncLine}</b></div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:14px;background:var(--grad-soft);border-color:var(--border)">
+        <div style="font-weight:700;font-size:15px;margin-bottom:12px">👨‍💻 ডেভেলপার</div>
+        <div style="display:flex;align-items:center;gap:14px">
+          <div style="width:52px;height:52px;border-radius:16px;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;flex-shrink:0;box-shadow:0 8px 20px rgba(109,94,252,.3)">AR</div>
+          <div style="min-width:0">
+            <div style="font-size:16px;font-weight:700;color:var(--text);letter-spacing:-.2px">MD ABDUR RAHMAN</div>
+            <div style="font-size:12.5px;color:var(--text2);margin-top:3px">Web &amp; App Developer</div>
+            <div style="font-size:11.5px;color:var(--text3);margin-top:4px">Omar Command Center · Final Build</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-weight:700;font-size:15px;margin-bottom:10px">💡 টিপস</div>
+        <ul style="font-size:13px;color:var(--text2);line-height:1.8;padding-left:18px;margin:0">
+          <li>নিয়মিত JSON ব্যাকআপ নিন</li>
+          <li>Google লগইন চালু করলে মাল্টি-ডিভাইস সিঙ্ক পাবেন</li>
+          <li>সার্চ: কীবোর্ডে <b>/</b> চাপুন</li>
+          <li>টাইমার চললে টপবারে ⏱ দেখা যায়</li>
+        </ul>
+      </div>`;
+  }
+
+  c.innerHTML = `
+    <div style="max-width:640px">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">
+        ${tabs.map(t => `
+          <button class="btn btn-sm ${tab===t.id?"btn-primary":""}" onclick="setSettingsTab('${t.id}')">${t.label}</button>
+        `).join("")}
+      </div>
+      ${body}
+    </div>
+  `;
+  if (tab === "appearance") applyDensity();
+}
+function saveFirebaseConfig() {
+  const raw = document.getElementById("fbCfgPaste").value.trim();
+  try {
+    let obj = JSON.parse(raw);
+    // allow paste of full firebase snippet object
+    if (!obj.apiKey && obj.firebase) obj = obj.firebase;
+    if (!obj.apiKey) return toast("সঠিক config JSON দিন (apiKey লাগবে)", "err");
+    localStorage.setItem(FB_CFG_KEY, JSON.stringify(obj));
+    toast("কনফিগ সেভ — রিলোড হচ্ছে...", "ok");
+    setTimeout(() => location.reload(), 600);
+  } catch (e) {
+    toast("JSON পার্স ব্যর্থ — কনফিগ চেক করুন", "err");
+  }
+}
+function clearFirebaseConfig() {
+  appConfirm("Firebase কনফিগ মুছবেন?", () => {
+    localStorage.removeItem(FB_CFG_KEY);
+    toast("কনফিগ মুছে ফেলা হয়েছে — রিলোড...", "info");
+    setTimeout(() => location.reload(), 500);
+  });
+}
+function copyText(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent).then(() => toast("কপি হয়েছে", "ok")).catch(() => toast("কপি ব্যর্থ", "err"));
+}
+async function forceSyncNow() {
+  if (!currentUser) return toast("আগে Google লগইন করুন", "err");
+  document.getElementById("saveDot").textContent = "সিঙ্ক হচ্ছে...";
+  try {
+    await loadCloud();
+    save();
+    toast("সিঙ্ক সম্পন্ন", "ok");
+  } catch (e) {
+    toast("সিঙ্ক ব্যর্থ", "err");
+  }
+  render();
+}
+function chgPw() {
+  const oldEl = document.getElementById("oldPw");
+  const n = (document.getElementById("nwPw") || {}).value || "";
+  const n2 = (document.getElementById("nwPw2") || {}).value || "";
+  if (oldEl && oldEl.value !== S.pw) return toast("বর্তমান পাসওয়ার্ড ভুল", "err");
+  if (n.length < 6) return toast("নতুন পাসওয়ার্ড কমপক্ষে ৬ অক্ষর", "err");
+  if (document.getElementById("nwPw2") && n !== n2) return toast("নতুন পাসওয়ার্ড মিলছে না", "err");
+  S.pw = n; save(); toast("পাসওয়ার্ড পরিবর্তন হয়েছে", "ok");
+  if (oldEl) oldEl.value = "";
+  const a = document.getElementById("nwPw"); if (a) a.value = "";
+  const b = document.getElementById("nwPw2"); if (b) b.value = "";
+}
+function setTheme(t) {
+  applyTheme(t);
+  save();
+  render();
+  toast(t === "dark" ? "ডার্ক থিম" : "লাইট থিম", "ok");
+}
+function applyDensity() {
+  const content = document.getElementById("content");
+  if (!content) return;
+  if (S.settings.density === "compact") content.style.padding = "14px 14px 90px";
+  else content.style.padding = "";
+}
+function saveSet() {
+  const cur = document.getElementById("sCur");
+  const week = document.getElementById("sWeek");
+  const disp = document.getElementById("sDisp");
+  const df = document.getElementById("sDateFmt");
+  const fab = document.getElementById("sFab");
+  if (cur) S.settings.currency = cur.value || "৳";
+  if (week) S.settings.weekStart = +week.value;
+  if (disp && disp.value.trim()) S.profile.name = disp.value.trim();
+  if (df) S.settings.dateFormat = df.value;
+  if (fab) S.settings.fabShow = fab.value === "1";
+  updateUser(); save();
+  const fabEl = document.getElementById("fab");
+  if (fabEl) fabEl.classList.toggle("show", S.settings.fabShow !== false && fabViews.includes(view));
+  toast("সেটিংস সেভ হয়েছে", "ok");
+  // settings page-এ থেকেই preview আপডেট (sync line ইত্যাদি)
+  if (view === "settings") render();
+}
+function exportData() {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(S, null, 2)], { type: "application/json" }));
+  a.download = "omar-command-center-backup-" + today() + ".json";
+  a.click();
+  toast("ব্যাকআপ ডাউনলোড শুরু", "ok");
+}
+function importData(e) {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      appConfirm("বর্তমান ডেটা রিপ্লেস হবে। নিশ্চিত?", () => {
+        Object.assign(S, data);
+        ensureFolders(); save(); updateUser(); render(); toast("ইমপোর্ট সফল", "ok");
+      });
+    } catch { toast("ভুল JSON ফাইল", "err"); }
+  };
+  r.readAsText(f);
+}
+function resetAll() {
+  appConfirm("সব লোকাল ডেটা মুছে যাবে। নিশ্চিত?", () => {
+    appConfirm("আবার নিশ্চিত করুন — এটি আনডু করা যাবে না।", () => {
+      doResetAll();
+    });
+  });
+}
+function doResetAll() {
+  localStorage.removeItem(KEY);
+  location.reload();
+}
+</script>
+</body>
+</html>
