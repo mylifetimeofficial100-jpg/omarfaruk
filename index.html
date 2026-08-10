@@ -94,54 +94,137 @@ button, input, textarea, select { font-family: inherit; color: inherit; }
 /* ========== GATE ========== */
 #gate {
   position: fixed; inset: 0; z-index: 9999;
-  background:
-    radial-gradient(ellipse 90% 55% at 50% -8%, rgba(109,94,252,.16) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 40% at 100% 100%, rgba(167,139,250,.1) 0%, transparent 50%),
-    radial-gradient(ellipse 40% 30% at 0% 80%, rgba(139,124,247,.08) 0%, transparent 45%),
-    var(--gate-bg);
   display: flex; align-items: center; justify-content: center;
+  padding: 24px 16px;
+  background: var(--gate-bg);
+  overflow: auto;
+}
+#gate::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 20%, rgba(109,94,252,.22) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 45% at 85% 75%, rgba(167,139,250,.18) 0%, transparent 50%),
+    radial-gradient(ellipse 40% 35% at 70% 10%, rgba(139,124,247,.12) 0%, transparent 45%),
+    radial-gradient(ellipse 30% 25% at 20% 90%, rgba(99,102,241,.1) 0%, transparent 40%);
+}
+#gate::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .4;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+}
+.gate-wrap {
+  position: relative; z-index: 1; width: 100%; max-width: 420px;
 }
 .gate-card {
-  width: 92%; max-width: 400px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 44px 34px 36px;
+  width: 100%;
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 80%, var(--accent) 20%);
+  border-radius: 28px;
+  padding: 36px 32px 28px;
   text-align: center;
-  box-shadow: var(--shadow-lg);
-  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(255,255,255,.04) inset;
+  backdrop-filter: blur(24px) saturate(1.3);
+  -webkit-backdrop-filter: blur(24px) saturate(1.3);
+}
+.gate-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: 99px; margin-bottom: 20px;
+  font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--accent); background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
 }
 .gate-logo {
-  width: 72px; height: 72px; margin: 0 auto 22px;
+  width: 76px; height: 76px; margin: 0 auto 18px;
   background: var(--grad);
-  border-radius: 22px;
+  border-radius: 24px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 30px; font-weight: 800; color: #fff;
-  box-shadow: 0 12px 32px rgba(109,94,252,.35);
+  font-size: 32px; font-weight: 800; color: #fff;
+  box-shadow: 0 14px 36px rgba(109,94,252,.4), 0 0 0 6px rgba(109,94,252,.08);
   letter-spacing: -.5px;
+  position: relative;
 }
-.gate-card h1 { font-size: 25px; font-weight: 700; margin-bottom: 8px; letter-spacing: -.3px; color: var(--text); }
-.gate-card .sub { color: var(--text2); font-size: 14.5px; margin-bottom: 30px; }
+.gate-card h1 {
+  font-size: 26px; font-weight: 800; margin-bottom: 6px;
+  letter-spacing: -.4px; color: var(--text); line-height: 1.2;
+}
+.gate-card .sub {
+  color: var(--text2); font-size: 14px; margin-bottom: 26px; line-height: 1.5;
+}
+.gate-features {
+  display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
+  margin-bottom: 24px;
+}
+.gate-features span {
+  font-size: 11.5px; font-weight: 500; color: var(--text2);
+  padding: 5px 10px; border-radius: 99px;
+  background: var(--card2); border: 1px solid var(--border);
+}
 .gate-card input {
-  width: 100%; padding: 15px 16px; border-radius: 13px;
+  width: 100%; padding: 14px 48px 14px 16px; border-radius: 14px;
   border: 1px solid var(--border); background: var(--input-bg);
-  font-size: 16px; outline: none; margin-bottom: 12px;
-  transition: border .2s, box-shadow .2s; color: var(--text);
+  font-size: 15px; outline: none; margin-bottom: 0;
+  transition: border .2s, box-shadow .2s, background .2s; color: var(--text);
 }
 .gate-card input:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(109,94,252,.18);
+  box-shadow: 0 0 0 4px rgba(109,94,252,.15);
   background: var(--bg2);
 }
-.gate-card .btn-main {
-  width: 100%; padding: 15px; border: none; border-radius: 13px;
-  background: var(--grad);
-  color: #fff; font-size: 16px; font-weight: 600; cursor: pointer;
-  box-shadow: 0 8px 24px rgba(109,94,252,.3);
-  transition: transform .15s, box-shadow .15s;
+.gate-pw-wrap { position: relative; margin-bottom: 12px; }
+.gate-pw-eye {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  width: 36px; height: 36px; border: none; background: transparent;
+  border-radius: 10px; cursor: pointer; font-size: 15px; color: var(--text3);
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s, color .15s;
 }
-.gate-card .btn-main:hover { transform: translateY(-1px); box-shadow: 0 10px 28px rgba(109,94,252,.38); }
-#gateErr { color: var(--red); font-size: 13px; min-height: 20px; margin-top: 12px; }
+.gate-pw-eye:hover { background: var(--card2); color: var(--text); }
+.gate-card .btn-main {
+  width: 100%; padding: 14px 16px; border: none; border-radius: 14px;
+  background: var(--grad); color: #fff; font-size: 15px; font-weight: 600;
+  cursor: pointer; box-shadow: 0 10px 28px rgba(109,94,252,.32);
+  transition: transform .15s, box-shadow .15s, opacity .15s;
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+}
+.gate-card .btn-main:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(109,94,252,.42); }
+.gate-card .btn-main:active { transform: translateY(0); }
+.gate-card .btn-google {
+  width: 100%; padding: 13px 16px; border-radius: 14px; cursor: pointer;
+  background: var(--bg2); border: 1px solid var(--border);
+  color: var(--text); font-size: 14.5px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  transition: background .15s, border-color .15s, transform .15s, box-shadow .15s;
+  box-shadow: var(--shadow);
+  margin-bottom: 0;
+}
+.gate-card .btn-google:hover {
+  background: var(--card2); border-color: var(--border2);
+  transform: translateY(-1px); box-shadow: var(--shadow-lg);
+}
+.gate-card .btn-local {
+  width: 100%; padding: 13px 16px; border: none; border-radius: 14px;
+  background: var(--text); color: var(--bg2); font-size: 14.5px; font-weight: 600;
+  cursor: pointer; transition: opacity .15s, transform .15s;
+}
+.gate-card .btn-local:hover { opacity: .9; transform: translateY(-1px); }
+[data-theme="dark"] .gate-card .btn-local { background: #e8e4f5; color: #14121f; }
+.gate-or {
+  display: flex; align-items: center; gap: 12px;
+  margin: 18px 0; color: var(--text3); font-size: 12px; font-weight: 500;
+}
+.gate-or::before, .gate-or::after {
+  content: ""; flex: 1; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+#gateErr {
+  color: var(--red); font-size: 13px; min-height: 18px; margin-top: 12px;
+  font-weight: 500;
+}
+#gateHint {
+  margin-top: 16px; font-size: 12px; color: var(--text3); line-height: 1.55;
+}
+.gate-foot {
+  margin-top: 18px; font-size: 11.5px; color: var(--text3);
+  letter-spacing: .02em;
+}
 
 /* ========== APP SHELL ========== */
 #app { display: none; height: 100vh; }
@@ -848,29 +931,36 @@ table.mini input { width: 100%; background: none; border: none; outline: none; c
 
 <!-- GATE -->
 <div id="gate">
-  <div class="gate-card">
-    <div class="gate-logo">O</div>
-    <h1>Omar Command Center</h1>
-    <p class="sub">Omar Faruk · Personal Life OS</p>
+  <div class="gate-wrap">
+    <div class="gate-card">
+      <div class="gate-badge">✦ Personal Life OS</div>
+      <div class="gate-logo">O</div>
+      <h1>Omar Command Center</h1>
+      <p class="sub">আপনার কাজ, নোট, টার্গেট ও জীবন — এক জায়গায়</p>
 
-    <button class="btn-main" id="googleBtn" onclick="loginWithGoogle()" style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px">
-      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.2 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.5-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 12 24 12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.2 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.3 35.3 26.8 36 24 36c-5.3 0-9.7-3.3-11.3-8H6.3C9.7 39.7 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1.1 3.2-3.5 5.7-6.4 7.2l.1.1 6.2 5.2C39.2 37.3 44 31.5 44 24c0-1.3-.1-2.5-.4-3.5z"/></svg>
-      Google দিয়ে লগইন
-    </button>
+      <div class="gate-features">
+        <span>📝 নোট</span>
+        <span>✅ টাস্ক</span>
+        <span>📂 ওয়ার্কস্পেস</span>
+        <span>☁️ সিঙ্ক</span>
+      </div>
 
-    <div style="display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--text3);font-size:12px">
-      <div style="flex:1;height:1px;background:var(--border)"></div>
-      অথবা
-      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <button type="button" class="btn-google" id="googleBtn" onclick="loginWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.2 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.5-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 12 24 12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.2 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.3 35.3 26.8 36 24 36c-5.3 0-9.7-3.3-11.3-8H6.3C9.7 39.7 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1.1 3.2-3.5 5.7-6.4 7.2l.1.1 6.2 5.2C39.2 37.3 44 31.5 44 24c0-1.3-.1-2.5-.4-3.5z"/></svg>
+        Google দিয়ে লগইন
+      </button>
+
+      <div class="gate-or">অথবা পাসওয়ার্ড</div>
+
+      <div class="gate-pw-wrap">
+        <input type="password" id="pw" placeholder="লোকাল পাসওয়ার্ড লিখুন" autocomplete="current-password">
+        <button type="button" class="gate-pw-eye" onclick="toggleGatePw()" id="gatePwEye" title="পাসওয়ার্ড দেখান">👁️</button>
+      </div>
+      <button type="button" class="btn-main" onclick="loginLocal()">প্রবেশ করুন →</button>
+      <div id="gateErr"></div>
+      <p id="gateHint"></p>
+      <p class="gate-foot">Omar Faruk · Private workspace</p>
     </div>
-
-    <div style="position:relative">
-      <input type="password" id="pw" placeholder="লোকাল পাসওয়ার্ড" autocomplete="current-password" style="padding-right:44px">
-      <button type="button" onclick="toggleGatePw()" id="gatePwEye" title="পাসওয়ার্ড দেখান" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);width:34px;height:34px;border:none;background:none;cursor:pointer;font-size:16px;color:var(--text3)">👁️</button>
-    </div>
-    <button class="btn-main" onclick="loginLocal()" style="background:#5a6275;box-shadow:none">পাসওয়ার্ড দিয়ে প্রবেশ</button>
-    <div id="gateErr"></div>
-    <p id="gateHint" style="margin-top:18px;font-size:12px;color:var(--text3);line-height:1.5"></p>
   </div>
 </div>
 
