@@ -1847,10 +1847,13 @@ function closeSb() {
 }
 function updateUser() {
   const p = S.profile;
-  document.getElementById("sbNm").textContent = p.name || "ইউজার";
+  const nmEl = document.getElementById("sbNm");
+  if (nmEl) nmEl.textContent = p.name || "ইউজার";
   const a = document.getElementById("sbAv");
-  if (p.avatar) a.innerHTML = `<img src="${p.avatar}">`;
-  else a.textContent = (p.name || "A").charAt(0).toUpperCase();
+  if (a) {
+    if (p.avatar) a.innerHTML = `<img src="${p.avatar}">`;
+    else a.textContent = (p.name || "A").charAt(0).toUpperCase();
+  }
 }
 
 /* ---------- Router ---------- */
@@ -7849,46 +7852,48 @@ async function saveProfile() {
     if (photoEl && photoEl.files && photoEl.files[0]) {
       const f = photoEl.files[0];
       if (!f.type || !f.type.startsWith("image/")) {
-        toast("প্রোফাইলের জন্য JPG/PNG ছবি দিন", "err");
-        return;
-      }
-      document.getElementById("saveDot").textContent = "ছবি প্রসেস...";
-      let url = null;
-      try { url = await uploadToCloud(f, "avatar"); } catch (e) { url = null; }
-      if (!url) {
-        try { url = await compressImage(f, 400, 0.8); }
-        catch (e1) {
-          try { url = await readAsDataURL(f, 3e6); }
-          catch (e2) {
-            toast("ছবি প্রসেস ব্যর্থ — ছোট JPG ব্যবহার করুন", "err");
-            return;
+        toast("প্রোফাইলের জন্য JPG/PNG ছবি দিন — বাকি তথ্য সেভ হচ্ছে", "err");
+      } else {
+        document.getElementById("saveDot").textContent = "ছবি প্রসেস...";
+        let url = null;
+        try { url = await uploadToCloud(f, "avatar"); } catch (e) { url = null; }
+        if (!url) {
+          try { url = await compressImage(f, 400, 0.8); }
+          catch (e1) {
+            try { url = await readAsDataURL(f, 3e6); }
+            catch (e2) { url = null; }
           }
         }
+        if (url) {
+          avatar = url;
+        } else {
+          toast("ছবি প্রসেস ব্যর্থ (ফাইল বড় বা করাপ্ট হতে পারে) — বাকি প্রোফাইল তথ্য সেভ হচ্ছে, ছোট ছবি দিয়ে আবার চেষ্টা করুন", "err");
+        }
       }
-      avatar = url;
     }
 
     const coverEl = document.getElementById("pCoverFile");
     if (coverEl && coverEl.files && coverEl.files[0]) {
       const f = coverEl.files[0];
       if (!f.type || !f.type.startsWith("image/")) {
-        toast("কভারের জন্য JPG/PNG ছবি দিন", "err");
-        return;
-      }
-      document.getElementById("saveDot").textContent = "কভার প্রসেস...";
-      let url = null;
-      try { url = await uploadToCloud(f, "cover"); } catch (e) { url = null; }
-      if (!url) {
-        try { url = await compressImage(f, 1000, 0.75); }
-        catch (e1) {
-          try { url = await readAsDataURL(f, 3e6); }
-          catch (e2) {
-            toast("কভার প্রসেস ব্যর্থ", "err");
-            return;
+        toast("কভারের জন্য JPG/PNG ছবি দিন — বাকি তথ্য সেভ হচ্ছে", "err");
+      } else {
+        document.getElementById("saveDot").textContent = "কভার প্রসেস...";
+        let url = null;
+        try { url = await uploadToCloud(f, "cover"); } catch (e) { url = null; }
+        if (!url) {
+          try { url = await compressImage(f, 1000, 0.75); }
+          catch (e1) {
+            try { url = await readAsDataURL(f, 3e6); }
+            catch (e2) { url = null; }
           }
         }
+        if (url) {
+          cover = url;
+        } else {
+          toast("কভার প্রসেস ব্যর্থ — বাকি প্রোফাইল তথ্য সেভ হচ্ছে", "err");
+        }
       }
-      cover = url;
     }
 
     const g = id => {
@@ -7927,23 +7932,41 @@ async function saveProfile() {
       document.getElementById("saveDot").textContent = "✓ লোকাল সেভ";
     } catch (e) {
       console.warn(e);
-      // If quota exceeded because of image, try saving without large data URLs once
-      if (avatar && String(avatar).startsWith("data:") && avatar.length > 100000) {
-        try {
+      // If quota exceeded because of a large image, shrink and retry once
+      let recovered = false;
+      try {
+        if (avatar && String(avatar).startsWith("data:") && avatar.length > 100000) {
           const slim = await compressImage(
             await (await fetch(avatar)).blob().then(b => new File([b], "a.jpg", { type: "image/jpeg" })),
             256, 0.6
           );
           S.profile.avatar = slim;
+        }
+        if (cover && String(cover).startsWith("data:") && cover.length > 150000) {
+          const slimC = await compressImage(
+            await (await fetch(cover)).blob().then(b => new File([b], "c.jpg", { type: "image/jpeg" })),
+            600, 0.55
+          );
+          S.profile.cover = slimC;
+        }
+        localStorage.setItem(KEY, JSON.stringify(S));
+        document.getElementById("saveDot").textContent = "✓ লোকাল সেভ";
+        recovered = true;
+      } catch (e2) {
+        recovered = false;
+      }
+      if (!recovered) {
+        // Last resort: drop images entirely so the rest of the profile still saves
+        try {
+          S.profile.avatar = prev.avatar || "";
+          S.profile.cover = prev.cover || "";
           localStorage.setItem(KEY, JSON.stringify(S));
-          document.getElementById("saveDot").textContent = "✓ লোকাল সেভ";
-        } catch (e2) {
-          toast("স্টোরেজ পূর্ণ — ছবি ছাড়া সেভ হচ্ছে না। ছোট ছবি দিন।", "err");
+          document.getElementById("saveDot").textContent = "✓ লোকাল সেভ (ছবি বাদে)";
+          toast("স্টোরেজ পূর্ণ — বাকি প্রোফাইল সেভ হয়েছে, কিন্তু ছবি সেভ হয়নি। Google লগইন চালু করলে বড় ছবিও সেভ হবে।", "err");
+        } catch (e3) {
+          toast("সেভ ব্যর্থ — স্টোরেজ সম্পূর্ণ পূর্ণ। সেটিংস থেকে পুরনো ডেটা ব্যাকআপ নিয়ে কিছু মুছে ফেলুন।", "err");
           return;
         }
-      } else {
-        toast("সেভ ব্যর্থ — স্টোরেজ পূর্ণ হতে পারে", "err");
-        return;
       }
     }
 
