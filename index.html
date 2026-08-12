@@ -1726,6 +1726,12 @@ async function loginWithGoogle() {
     const provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({ prompt: "select_account" });
     const result = await auth.signInWithPopup(provider);
+    const ALLOWED_UID = "UFxTuPXw3EVvEdS2Hf1LAetezRg2";
+    if (result.user.uid !== ALLOWED_UID) {
+      await auth.signOut();
+      document.getElementById("gateErr").textContent = "এই অ্যাপ শুধুমাত্র নির্দিষ্ট ব্যবহারকারীর জন্য। আপনার অ্যাক্সেস নেই।";
+      return;
+    }
     currentUser = result.user;
     if (currentUser.displayName && (!S.profile.name || S.profile.name === "আমার নাম" || S.profile.name === "Omar Faruk")) {
       S.profile.name = currentUser.displayName;
@@ -1830,6 +1836,12 @@ window.addEventListener("load", async () => {
   if (useCloud && auth) {
     auth.onAuthStateChanged(async (user) => {
       if (user) {
+        const ALLOWED_UID = "UFxTuPXw3EVvEdS2Hf1LAetezRg2";
+        if (user.uid !== ALLOWED_UID) {
+          await auth.signOut();
+          document.getElementById("gateErr").textContent = "এই অ্যাপ শুধুমাত্র নির্দিষ্ট ব্যবহারকারীর জন্য। আপনার অ্যাক্সেস নেই।";
+          return;
+        }
         // Google সেশন থাকলে অটো ঢোকান (রিফ্রেশ/নতুন ট্যাব)
         currentUser = user;
         sessionStorage.setItem("cc_ok", "google");
