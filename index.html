@@ -1698,9 +1698,30 @@ function loginLocal() {
     errEl.textContent = `অনেকবার ভুল হয়েছে — ${secs} সেকেন্ড পর আবার চেষ্টা করুন`;
     return;
   }
-  const v = document.getElementById("pw").value;
-  if (v === S.pw) {
+
+  // Always refresh the locally saved state before checking the password.
+  // This prevents a stale in-memory password from breaking login.
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) {
+      const saved = JSON.parse(raw);
+      if (saved && typeof saved.pw === "string" && saved.pw.length > 0) {
+        S.pw = saved.pw;
+      }
+    }
+  } catch (e) {
+    console.warn("Password state load failed", e);
+  }
+
+  // Remove accidental spaces caused by mobile keyboards/paste.
+  const v = String(document.getElementById("pw").value || "").trim();
+  const expected = (typeof S.pw === "string" && S.pw.length > 0) ? S.pw : DEFAULT_PW;
+
+  if (v === expected) {
+    S.pw = expected;
+    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
     gateAttempts = 0;
+    gateLockUntil = 0;
     sessionStorage.setItem("cc_ok", "local");
     currentUser = null;
     enter();
@@ -8380,7 +8401,10 @@ function chgPw() {
   if (oldEl && oldEl.value !== S.pw) return toast("বর্তমান পাসওয়ার্ড ভুল", "err");
   if (n.length < 6) return toast("নতুন পাসওয়ার্ড কমপক্ষে ৬ অক্ষর", "err");
   if (document.getElementById("nwPw2") && n !== n2) return toast("নতুন পাসওয়ার্ড মিলছে না", "err");
-  S.pw = n; save(); toast("পাসওয়ার্ড পরিবর্তন হয়েছে", "ok");
+  S.pw = n;
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {}
+  save();
+  toast("পাসওয়ার্ড পরিবর্তন হয়েছে", "ok");
   if (oldEl) oldEl.value = "";
   const a = document.getElementById("nwPw"); if (a) a.value = "";
   const b = document.getElementById("nwPw2"); if (b) b.value = "";
